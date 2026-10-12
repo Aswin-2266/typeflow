@@ -20,20 +20,20 @@
 │  state/results.ts   history + localStorage + sync    │
 │  themes/            palette -> CSS custom properties │
 ├──────────────────────────────────────────────────────┤
-│  shared/contract.ts ts-rest + Zod  ◄── also server   │
+│ packages/shared     ts-rest + Zod  ◄── also API      │
 └──────────────────────────────────────────────────────┘
                           │ HTTP
 ┌──────────────────────────────────────────────────────┐
-│  server/index.ts    Express host, injects store      │
-│  server/routes/     handlers (depend on interface)   │
-│  server/store/      MemoryResultStore implements     │
+│ apps/api/src/app.ts Express app, injects store       │
+│ apps/api/src/routes handlers (depend on interface)   │
+│ apps/api/src/store  MemoryResultStore implements     │
 │                     ResultStore  ◄── swap point      │
 └──────────────────────────────────────────────────────┘
 ```
 
 ## The central rule: the engine never touches the DOM
 
-`engine/engine.ts` is pure TypeScript. It imports no DOM types, queries no
+`apps/web/src/engine/engine.ts` is pure TypeScript. It imports no DOM types, queries no
 elements, and renders nothing. It owns the authoritative state and emits
 events.
 
@@ -104,13 +104,13 @@ scattered across individual setting handlers.
 
 ## The persistence swap point
 
-Route handlers in `server/routes/results.ts` depend on the `ResultStore`
+Route handlers in `apps/api/src/routes/results.ts` depend on the `ResultStore`
 **interface**, never on `MemoryResultStore`. The concrete store is constructed
 in exactly one place:
 
 ```ts
-// server/index.ts
-const store = new MemoryResultStore();
+// apps/api/src/app.ts
+const store = new MemoryResultStore()
 ```
 
 To move to MongoDB: write `MongoResultStore implements ResultStore`, change

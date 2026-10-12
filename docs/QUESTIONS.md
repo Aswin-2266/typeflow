@@ -25,12 +25,13 @@ rewriting client code.
 
 > Upstream uses pnpm + Turborepo, but only npm is available here.
 
-**Answer: Single package, no monorepo** — `src/` and `server/` as plain
-folders.
+**Original answer: Single package. Current answer: npm workspaces.** The frontend,
+API, and shared contract now live in `apps/web`, `apps/api`, and
+`packages/shared`.
 
-*Effect.* Flat dependency graph, faster installs, no workspace resolution.
-Upstream needs a monorepo because it publishes shared packages; this project
-does not.
+*Effect.* Vercel can import the same repository twice and deploy each app from
+its own root directory. npm still manages one lock file and links the shared
+contract locally.
 
 ---
 

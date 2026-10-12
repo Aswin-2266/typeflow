@@ -30,7 +30,7 @@ import type {
   TypedWord,
   WpmSample,
 } from "@/types"
-import type { TestResultInput } from "@shared/contract"
+import type { TestResultInput } from "@typeflow/shared/contract"
 
 export type EngineStatus = "idle" | "running" | "finished";
 

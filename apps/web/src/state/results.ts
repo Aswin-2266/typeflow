@@ -10,7 +10,8 @@ import type { PersonalBest, TestResult, TestResultInput, UserStats } from "@/typ
 
 const STORAGE_KEY = "typeflow.results"
 const MAX_STORED = 1000
-const API_BASE = "/api"
+const API_ORIGIN = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") ?? ""
+const API_BASE = `${API_ORIGIN}/api`
 
 function makeId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`

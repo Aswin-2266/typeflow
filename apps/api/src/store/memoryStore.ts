@@ -4,7 +4,7 @@
  * This is the swappable persistence layer. It implements `ResultStore`,
  * which is the only interface the route handlers depend on — replacing it
  * with MongoDB, Postgres, or Firestore means writing one new class and
- * changing one line in `server/index.ts`.
+ * changing one line in `apps/api/src/app.ts`.
  *
  * Data is not durable across restarts, which is intentional for a stub.
  */
@@ -14,7 +14,7 @@ import type {
   TestResult,
   TestResultInput,
   UserStats,
-} from "../../shared/contract"
+} from "@typeflow/shared/contract"
 
 export interface ResultStore {
   list(limit: number, offset: number): Promise<{ results: TestResult[]; total: number }>;

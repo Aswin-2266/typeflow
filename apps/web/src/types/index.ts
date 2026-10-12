@@ -1,7 +1,7 @@
 /**
  * Client-side domain types.
  *
- * Types that cross the network boundary live in `shared/contract.ts` and are
+ * Types that cross the network boundary live in `packages/shared/src/contract.ts` and are
  * re-exported here so UI code has a single import site.
  */
 
@@ -13,7 +13,7 @@ export type {
   UserStats,
   WpmSample,
   CharStats,
-} from "@shared/contract"
+} from "@typeflow/shared/contract"
 
 /* -------------------------------------------------------------------------- */
 /* Character-level model                                                       */
@@ -58,7 +58,7 @@ export type TimerStyle = "bar" | "text" | "mini";
 export type QuoteLength = "short" | "medium" | "long" | "all";
 
 export type Config = {
-  mode: import("@shared/contract").TestMode;
+  mode: import("@typeflow/shared/contract").TestMode;
   /** Seconds for `time` mode. */
   time: number;
   /** Word count for `words` mode. */
@@ -106,7 +106,7 @@ export type EngineEvent =
   | { type: "input" }
   | { type: "wordAdvance"; index: number }
   | { type: "tick"; elapsed: number; remaining: number | null }
-  | { type: "finish"; result: import("@shared/contract").TestResultInput }
+  | { type: "finish"; result: import("@typeflow/shared/contract").TestResultInput }
   | { type: "restart" };
 
 export type EngineListener = (event: EngineEvent) => void;

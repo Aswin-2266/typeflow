@@ -48,7 +48,7 @@ off-by-one cases during development.
 
 ## Why ts-rest + Zod
 
-The contract in `shared/contract.ts` is imported by both the browser and the
+The contract in `packages/shared/src/contract.ts` is imported by both the browser and the
 server. A Zod schema there generates:
 
 1. TypeScript types for both sides

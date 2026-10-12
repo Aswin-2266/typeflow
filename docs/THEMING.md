@@ -38,7 +38,7 @@ A ratio of roughly **2:1 to 3:1** between them works well in practice.
 
 ## Adding a theme
 
-Append to the `themes` array in `src/themes/themes.ts`:
+Append to the `themes` array in `apps/web/src/themes/themes.ts`:
 
 ```ts
 {
@@ -90,7 +90,7 @@ are `main`, `text`, and `sub`.
 
 ## Chart integration
 
-`src/ui/chart.ts` reads theme colours at render time with
+`apps/web/src/ui/chart.ts` reads theme colours at render time with
 `getComputedStyle(document.documentElement)` rather than importing the theme
 object. This means the chart always matches the active theme without needing a
 subscription to theme changes.

@@ -4,7 +4,7 @@ Base URL: `http://localhost:3005/api`
 In development the Vite server proxies `/api` here, so the browser uses
 same-origin relative paths.
 
-The contract is defined once in `shared/contract.ts` using ts-rest + Zod and
+The contract is defined once in `packages/shared/src/contract.ts` using ts-rest + Zod and
 is imported by both the client and the server.
 
 ## Conventions
@@ -168,7 +168,7 @@ Lifetime aggregates.
 
 ```ts
 import { initClient } from "@ts-rest/core";
-import { contract } from "@shared/contract";
+import { contract } from "@typeflow/shared/contract";
 
 const client = initClient(contract, { baseUrl: "", baseHeaders: {} });
 

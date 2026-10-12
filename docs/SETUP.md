@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- **Node.js >= 20** (pinned in `.nvmrc`)
+- **Node.js 20 or newer** (declared in the root `package.json`)
 - **npm 9+**
 
 No database, cloud account, or API key is needed.
@@ -29,8 +29,8 @@ npm run dev:all
 Or separately:
 
 ```bash
-npm run dev      # frontend only — fully functional without the API
-npm run server   # API only
+npm run dev:web  # frontend only; fully functional without the API
+npm run dev:api  # API only
 ```
 
 The frontend works standalone. `localStorage` is the source of truth; the API
@@ -40,38 +40,24 @@ is an optional mirror.
 
 | Command | Purpose |
 |---|---|
-| `npm run dev` | Vite dev server with HMR |
-| `npm run server` | API with auto-reload via tsx |
-| `npm run dev:all` | Both, colour-tagged |
-| `npm run build` | Typecheck, then production bundle to `dist/` |
-| `npm run preview` | Serve the production build locally |
+| `npm run dev:web` | Vite development server with hot module replacement |
+| `npm run dev:api` | API with auto-reload through tsx |
+| `npm run dev:all` | Start both applications |
+| `npm run build` | Validate shared and API code, then build the frontend |
 | `npm test` | Run the test suite once |
-| `npm run test:watch` | Tests in watch mode |
-| `npm run typecheck` | `tsc --noEmit` |
+| `npm run typecheck` | Type-check every workspace |
 | `npm run format` | Prettier across the repo |
 
 ## Project layout
 
-```
+```text
 .
-├── index.html              app shell
-├── shared/contract.ts      ts-rest + Zod — imported by BOTH sides
-├── src/
-│   ├── main.ts             entry point
-│   ├── engine/             engine.ts, stats.ts, generator.ts  (no DOM)
-│   ├── state/              config.ts, results.ts  (observable stores)
-│   ├── themes/             themes.ts, themeEngine.ts
-│   ├── ui/                 app.ts, renderer.ts, commandLine.ts, …
-│   ├── data/               word lists, quotes
-│   ├── styles/             SCSS partials
-│   ├── types/              shared client types
-│   └── utils/              sound.ts
-├── server/
-│   ├── index.ts            Express host — persistence injected here
-│   ├── routes/results.ts   handlers (depend on the interface)
-│   └── store/memoryStore.ts  ResultStore + MemoryResultStore
-├── tests/                  65 Vitest tests
-└── docs/                   this documentation
+├── apps/
+│   ├── web/                Vite frontend and 65 Vitest tests
+│   └── api/                Express app and Vercel Functions
+├── packages/
+│   └── shared/             ts-rest and Zod contract
+└── docs/                   Project documentation
 ```
 
 ## Verifying the install
@@ -85,7 +71,7 @@ npm run build       # expect: dist/ written
 Check the API:
 
 ```bash
-curl http://localhost:3005/api/health
+curl http://localhost:3005/health
 # {"status":"ok","uptime":3}
 ```
 
@@ -93,7 +79,7 @@ curl http://localhost:3005/api/health
 
 ### A theme
 
-Append to `themes` in `src/themes/themes.ts`. It appears in the settings grid
+Append to `themes` in `apps/web/src/themes/themes.ts`. It appears in the settings grid
 and the command palette automatically — no other file changes.
 
 ```ts
@@ -111,22 +97,22 @@ and the command palette automatically — no other file changes.
 
 ### A setting
 
-1. Add the field to `Config` in `src/types/index.ts`
-2. Add a default in `defaultConfig` (`src/state/config.ts`)
+1. Add the field to `Config` in `apps/web/src/types/index.ts`
+2. Add a default in `defaultConfig` (`apps/web/src/state/config.ts`)
 3. Add a validator in the same file — **required**, or it will not persist
-4. Add a row to the `schema` array in `src/ui/settingsPage.ts`
+4. Add a row to the `schema` array in `apps/web/src/ui/settingsPage.ts`
 
 If it changes generated text, add its key to the `regenerates` array in
 `App.bindConfig()`.
 
 ### A word list
 
-Create `src/data/<language>.ts` exporting `string[]`, then reference it in
-`src/engine/generator.ts`.
+Create `apps/web/src/data/<language>.ts` exporting `string[]`, then reference it in
+`apps/web/src/engine/generator.ts`.
 
 ## Swapping the persistence layer
 
-Implement the interface in `server/store/memoryStore.ts`:
+Implement the interface in `apps/api/src/store/memoryStore.ts`:
 
 ```ts
 export class MongoResultStore implements ResultStore {
@@ -138,7 +124,7 @@ export class MongoResultStore implements ResultStore {
 }
 ```
 
-Then change one line in `server/index.ts`:
+Then change one line in `apps/api/src/app.ts`:
 
 ```ts
 const store = new MongoResultStore(db);

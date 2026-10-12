@@ -8,7 +8,7 @@
  */
 
 import { initServer } from "@ts-rest/express"
-import { contract } from "../../shared/contract"
+import { contract } from "@typeflow/shared/contract"
 import type { ResultStore } from "../store/memoryStore"
 
 const s = initServer()

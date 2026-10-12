@@ -35,7 +35,7 @@ Every skill passed the CLI's security scan (Gen: safe, Socket: 0 alerts, Snyk: l
   trigger on this codebase. They become relevant only if a React/Next.js surface is added.
 
 `theme-factory` and `frontend-design` pair well with the existing 12-theme system in
-`src/themes/`, and `web-design-guidelines` is the natural tool for the open accessibility work
+`apps/web/src/themes/`, and `web-design-guidelines` is the natural tool for the open accessibility work
 in `ROADMAP.md`.
 
 ---

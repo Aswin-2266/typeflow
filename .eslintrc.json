@@ -8,7 +8,7 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
     ],
-    "parser": "/home/workspace/.extensions/zcode-eslint/eslintPlugins/node_modules/@typescript-eslint/parser",
+    "parser": "@typescript-eslint/parser",
     "plugins": [
         "@typescript-eslint"
     ],

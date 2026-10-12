@@ -100,7 +100,7 @@ rather than performance.
 
 ## 7. Shared contract over hand-written types
 
-**Decision.** ts-rest + Zod in `shared/contract.ts`, imported by both sides.
+**Decision.** ts-rest + Zod in `packages/shared/src/contract.ts`, imported by both sides.
 
 **Reasoning.** One definition produces client types, server types, and runtime
 validation. The common failure mode of hand-written types — server changes a
@@ -115,7 +115,7 @@ the network boundary.
 ## 8. Interface-based persistence
 
 **Decision.** Handlers depend on `ResultStore`; the concrete store is
-constructed in exactly one line of `server/index.ts`.
+constructed in `apps/api/src/app.ts`.
 
 **Reasoning.** The user chose a stub backend explicitly intended to be
 swappable. Dependency inversion makes "swappable later" a one-line change

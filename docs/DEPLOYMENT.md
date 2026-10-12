@@ -1,343 +1,253 @@
-# Deployment Guide — Vercel & Render
+# Deploy the frontend and API as two Vercel projects
 
-This guide covers deploying **typeflow** as a split deployment:
+This guide deploys one Git repository as two Vercel projects. `typeflow-web` serves the Vite frontend. `typeflow-api` serves the Express application through Vercel Functions.
 
-| Part | Platform | What it is |
-|---|---|---|
-| Frontend | **Vercel** | Static Vite build (`dist/`) |
-| API | **Render** | Express server (`server/index.ts`) |
+## Deployment plan
 
-Every field you must enter in both dashboards is listed verbatim below.
+- **Content type**: How-to
+- **Goal**: Configure and deploy both applications from `Aswin-2266/typeflow`
+- **Audience**: Repository owners with access to GitHub and Vercel
+- **Prerequisites**: A pushed `master` branch and a Vercel account
+- **Open question**: Choose a database before treating API data as durable
 
-> **The API is optional.** The frontend is fully functional on its own —
-> `localStorage` is the source of truth and a failed API call never breaks the
-> UI (`src/state/results.ts`). If you only want the typing test live, deploy
-> **Vercel only** and skip Part 2 and Part 3 entirely.
+## Understand the repository structure
 
----
+Each Vercel project uses a separate workspace as its root directory:
 
-## Before you start: the one thing that will break
-
-The client calls the API at the **relative path** `/api`:
-
-```ts
-// src/state/results.ts
-const API_BASE = "/api"
+```text
+apps/
+├── web/                 # Vite frontend
+│   ├── src/
+│   ├── package.json
+│   └── vite.config.ts
+└── api/                 # Express API
+    ├── api/             # Vercel Function entry points
+    ├── src/             # App, routes, local server, store
+    ├── package.json
+    └── vercel.json
+packages/
+└── shared/              # ts-rest and Zod API contract
 ```
 
-There is no `VITE_API_URL` environment variable. The URL is not configurable at
-build time. This means that once the frontend is on Vercel and the API is on
-Render, **`/api` resolves to Vercel, not Render**, and every API call 404s.
+Both projects install dependencies from the repository root because npm workspaces link `@typeflow/shared` into each application.
 
-There are two ways to fix this. Pick one before you deploy.
+## Deploy the API project
 
-| | Option A — Vercel rewrite (recommended) | Option B — change the code |
-|---|---|---|
-| What | Vercel proxies `/api/*` to Render | Hardcode/env the Render URL in the client |
-| Code change | None | Edit `src/state/results.ts` |
-| CORS | Not needed (same origin) | Required (already enabled server-side) |
-| Extra latency | One proxy hop | None |
+Deploy the API first because the frontend needs its generated domain.
 
-This guide uses **Option A**. It requires no source changes and keeps requests
-same-origin. Option B is described in [Appendix B](#appendix-b--option-b-build-time-api-url).
+### Import the repository
 
----
+1. Open the [Vercel new project page](https://vercel.com/new)
+2. Select `Aswin-2266/typeflow`
+3. Click **Import**
+4. Enter the fields below
 
-## Part 1 — Prerequisites
+### Enter the API project fields
 
-- The repo is pushed to GitHub: `Aswin-2266/typeflow`
-- Node.js `>=20` (declared in `package.json` `engines`) — both platforms honour this
-- `npm run build` succeeds locally
-
-Verify before deploying:
-
-```bash
-npm ci
-npm run build    # expect: dist/ written
-```
-
----
-
-## Part 2 — Render (API) — deploy this first
-
-Deploy the API **first**, because the Vercel rewrite needs the Render URL.
-
-### 2.1 Create the service
-
-Go to **https://dashboard.render.com** → **New** → **Web Service** →
-**Build and deploy from a Git repository** → connect `Aswin-2266/typeflow`.
-
-### 2.2 Fields to enter
-
-| Field | Value to enter | Notes |
-|---|---|---|
-| **Name** | `typeflow-api` | Becomes `typeflow-api.onrender.com` |
-| **Project** | *(optional)* | Leave blank |
-| **Language** | `Node` | **Not** Docker |
-| **Branch** | `master` | This repo's default branch is `master`, not `main` |
-| **Region** | `Oregon (US West)` | Pick the one nearest your users |
-| **Root Directory** | *(leave blank)* | The server is at the repo root |
-| **Build Command** | `npm install --include=dev` | See the warning below |
-| **Start Command** | `npx tsx server/index.ts` | See the warning below |
-| **Instance Type** | `Free` | Note the spin-down caveat below |
-
-### 2.3 Why those exact build/start commands
-
-Two project-specific traps:
-
-**1. `npm run build` does NOT build the server.** It runs
-`tsc --noEmit && vite build` — a typecheck plus a *frontend* bundle. It emits
-nothing the API can run. Do not use it as the Render build command.
-
-**2. `tsx` is a devDependency.** The server has no compile step; it is executed
-directly by `tsx`. Render sets `NODE_ENV=production`, which makes `npm install`
-skip devDependencies, so `tsx` would be missing and the service would crash with
-`tsx: not found`.
-
-`npm install --include=dev` forces devDependencies to install, which keeps `tsx`
-available. This is the lowest-friction option and requires no code change.
-
-> **Cleaner long-term alternative:** move `tsx` from `devDependencies` to
-> `dependencies` in `package.json`, then use the standard `npm install` as the
-> build command. See [Appendix A](#appendix-a--production-grade-api-build).
-
-### 2.4 Environment variables
-
-Click **Add Environment Variable** for each:
-
-| Key | Value | Required | Why |
-|---|---|---|---|
-| `NODE_VERSION` | `20.5.1` | Recommended | Pins the Node major; matches local |
-| `PORT` | *(do not set)* | No | **Render injects this automatically** |
-
-**Do not set `PORT` manually.** The server reads it:
-
-```ts
-const PORT = Number(process.env["PORT"] ?? 3005)
-```
-
-Render assigns a port and sets `PORT` itself. Hardcoding it causes the health
-check to fail and the deploy to hang at "in progress".
-
-That is the complete list. The API needs **no database URL, no API key, and no
-secrets** — persistence is in-memory (`MemoryResultStore`).
-
-### 2.5 Health check
-
-Under **Advanced**:
-
-| Field | Value |
+| Vercel field | Value |
 |---|---|
-| **Health Check Path** | `/health` |
+| **Project Name** | `typeflow-api` |
+| **Framework Preset** | `Other` |
+| **Root Directory** | `apps/api` |
+| **Build Command** | `npm run build` |
+| **Output Directory** | Leave empty |
+| **Install Command** | `npm install` |
+| **Development Command** | `npm run dev` |
+| **Node.js Version** | `20.x` |
+| **Production Branch** | `master` |
 
-This endpoint exists in `server/index.ts` and returns
-`{"status":"ok","uptime":…}`. Note it is `/health`, **not** `/api/health`.
+Do not set a `PORT` variable. Vercel invokes the exported Express application as a function and does not use `app.listen()`.
 
-### 2.6 Deploy and verify
+### Enter the initial API environment variable
 
-Click **Create Web Service**. When the log shows `[api] listening on http://0.0.0.0:…`:
+Add this variable before the first deployment:
 
-```bash
-curl https://typeflow-api.onrender.com/health
-# {"status":"ok","uptime":3}
-
-curl https://typeflow-api.onrender.com/api/results
-# {"results":[],"total":0}
-```
-
-**Copy the service URL** (e.g. `https://typeflow-api.onrender.com`). Part 3 needs it.
-
-### 2.7 Two caveats about the free tier
-
-**Spin-down.** Free services sleep after ~15 minutes idle. The next request
-takes 50+ seconds to wake. The frontend degrades gracefully — a slow or failed
-sync is caught and ignored — so the typing test stays fully usable.
-
-**Data is not durable.** `MemoryResultStore` holds results in a process
-variable. Every deploy, restart, and spin-down wipes all server-side results
-permanently. This is intentional for a stub. The user's own history survives
-because it lives in their browser's `localStorage`. To make server data durable,
-implement the `ResultStore` interface against a real database — see
-"Swapping the persistence layer" in `SETUP.md`.
-
----
-
-## Part 3 — Vercel (frontend)
-
-### 3.1 Add the rewrite config
-
-Create `vercel.json` in the repo root, replacing the URL with your Render URL
-from step 2.6:
-
-```json
-{
-  "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://typeflow-api.onrender.com/api/:path*"
-    }
-  ]
-}
-```
-
-This makes the browser's same-origin `/api/...` calls transparently reach
-Render. Commit and push it **before** importing the project:
-
-```bash
-git add vercel.json
-git commit -m "chore: proxy /api to the Render API service"
-git push
-```
-
-> Skipping this file is the single most common cause of "the site loads but
-> results never sync."
-
-### 3.2 Import the project
-
-Go to **https://vercel.com/new** → select `Aswin-2266/typeflow` → **Import**.
-
-### 3.3 Fields to enter
-
-| Field | Value to enter | Notes |
+| Name | Value | Environments |
 |---|---|---|
-| **Project Name** | `typeflow` | Becomes `typeflow.vercel.app` |
-| **Framework Preset** | `Vite` | Usually auto-detected |
-| **Root Directory** | `./` | Leave as the repo root |
-| **Build Command** | `npm run build` | Default; override toggle off |
-| **Output Directory** | `dist` | Matches `build.outDir` in `vite.config.ts` |
-| **Install Command** | `npm install` | Default |
-| **Node.js Version** | `20.x` | Under **Settings → General** |
+| `FRONTEND_URLS` | `http://localhost:5173` | Production, Preview, Development |
 
-### 3.4 Environment variables
+The first value permits local frontend development. You will replace it after Vercel assigns the frontend domain.
 
-**None.** Leave this section empty.
+### Deploy and verify the API
 
-The frontend reads no `VITE_*` variables. The only `import.meta.env` usage is
-`import.meta.env.DEV` in `src/main.ts`, which Vite sets automatically (`false`
-in production builds). Adding variables here has no effect.
+Click **Deploy**, then copy the production domain. It should resemble `https://typeflow-api.vercel.app`.
 
-### 3.5 Deploy
-
-Click **Deploy**. The build runs `tsc --noEmit && vite build` — note this
-**typechecks first**, so any type error fails the deploy. Run `npm run typecheck`
-locally first if you are unsure.
-
----
-
-## Part 4 — Verify the full deployment
-
-1. Open `https://typeflow.vercel.app` — the typing test renders.
-2. Complete a test (type a few words, let the timer run out).
-3. Open DevTools → **Network** → find the `POST /api/results` request.
-   - **201 Created** → the Render proxy works end-to-end.
-   - **404** → `vercel.json` is missing, malformed, or was not deployed.
-   - **502 / long pending** → Render free instance is waking up; retry in a minute.
-4. Confirm persistence:
+Verify these routes in a browser or terminal:
 
 ```bash
-curl https://typeflow-api.onrender.com/api/results
-# {"results":[{...}],"total":1}
+curl https://typeflow-api.vercel.app/health
+curl "https://typeflow-api.vercel.app/api/results?limit=10&offset=0"
 ```
 
-5. Reload the page → your result is still in the history (this is `localStorage`,
-   and works even if step 3 failed).
+The health route returns `{"status":"ok","uptime":...}`. The results route returns `{"results":[],"total":0}` before any results exist.
 
----
+## Deploy the frontend project
 
-## Troubleshooting
+Import the same repository again and configure the Vite workspace.
+
+### Import the repository again
+
+1. Open the [Vercel new project page](https://vercel.com/new)
+2. Select `Aswin-2266/typeflow`
+3. Click **Import**
+4. Enter the fields below
+
+### Enter the frontend project fields
+
+| Vercel field | Value |
+|---|---|
+| **Project Name** | `typeflow-web` |
+| **Framework Preset** | `Vite` |
+| **Root Directory** | `apps/web` |
+| **Build Command** | `npm run build` |
+| **Output Directory** | `dist` |
+| **Install Command** | `npm install` |
+| **Development Command** | `npm run dev` |
+| **Node.js Version** | `20.x` |
+| **Production Branch** | `master` |
+
+### Enter the frontend environment variable
+
+Use the API domain from the previous deployment. Do not append `/api` or a trailing slash.
+
+| Name | Value | Environments |
+|---|---|---|
+| `VITE_API_URL` | `https://typeflow-api.vercel.app` | Production, Preview, Development |
+
+Vite embeds this value during the build. Redeploy the frontend after changing it.
+
+### Deploy and copy the frontend domain
+
+Click **Deploy**, then copy the production domain. It should resemble `https://typeflow-web.vercel.app`.
+
+## Restrict API access to the frontend
+
+Return to the `typeflow-api` project after Vercel assigns the frontend domain.
+
+1. Open **Settings**
+2. Open **Environment Variables**
+3. Edit `FRONTEND_URLS`
+4. Enter the comma-separated value below
+5. Redeploy the API
+
+```text
+http://localhost:5173,https://typeflow-web.vercel.app
+```
+
+Use exact origins with no trailing slash. Add a custom frontend domain to the same comma-separated value when needed.
+
+For example:
+
+```text
+http://localhost:5173,https://typeflow-web.vercel.app,https://typeflow.example.com
+```
+
+## Verify the connected deployment
+
+Test the browser and network connection after both deployments finish:
+
+1. Open `https://typeflow-web.vercel.app`
+2. Complete a typing test
+3. Open browser developer tools
+4. Select **Network**
+5. Confirm `POST https://typeflow-api.vercel.app/api/results` returns `201`
+6. Open the statistics page and confirm the local result appears
+
+Check the API directly:
+
+```bash
+curl "https://typeflow-api.vercel.app/api/results?limit=10&offset=0"
+```
+
+A browser result remains available through `localStorage` if API synchronization fails.
+
+## Configure custom domains
+
+Use separate domains when you add a domain to Vercel:
+
+| Application | Recommended domain |
+|---|---|
+| Frontend | `https://typeflow.example.com` |
+| API | `https://api.typeflow.example.com` |
+
+Update the frontend variable:
+
+```text
+VITE_API_URL=https://api.typeflow.example.com
+```
+
+Update the API variable:
+
+```text
+FRONTEND_URLS=https://typeflow.example.com
+```
+
+Redeploy both projects after changing build-time or runtime environment variables.
+
+## Handle preview deployments
+
+Vercel creates a different frontend origin for each preview deployment. The API rejects origins that do not appear in `FRONTEND_URLS`.
+
+Use one of these approaches:
+
+- Add a stable preview domain to `FRONTEND_URLS`
+- Test previews against local browser storage without API synchronization
+- Add an authenticated preview-origin policy before allowing wildcard domains
+
+Do not allow every `*.vercel.app` origin in production. That pattern includes projects you do not control.
+
+## Understand API storage limits
+
+`MemoryResultStore` stores data inside one function instance. Vercel can replace or scale that instance at any time, so API results can disappear between requests or deployments.
+
+The browser remains functional because `localStorage` is the primary result store. Add Neon, Supabase, MongoDB Atlas, or another managed database before using server-side history.
+
+## Troubleshoot deployment failures
+
+Use this table to map common failures to their fixes:
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Render: `tsx: not found` | devDependencies skipped under `NODE_ENV=production` | Build command must be `npm install --include=dev` (§2.3) |
-| Render: deploy hangs, "in progress" forever | `PORT` was set manually, or health check path wrong | Remove the `PORT` variable; set health check to `/health` |
-| Render: `Cannot find module '../shared/contract'` | **Root Directory** was set to `server` | Clear Root Directory — the server imports `../shared/` from the repo root |
-| Vercel: build fails on a type error | `npm run build` runs `tsc --noEmit` first | Run `npm run typecheck` locally and fix, or deploy a passing commit |
-| Vercel: 404 on all assets | Output Directory wrong | Must be `dist` |
-| `POST /api/results` → 404 in production | `vercel.json` missing or not pushed | Add it (§3.1), commit, redeploy |
-| API calls 502 then succeed | Free-tier cold start | Expected; upgrade to a paid instance to remove |
-| Results vanish from the API after a day | In-memory store wiped on restart | Expected; implement a real `ResultStore` (`SETUP.md`) |
-| Results vanish from the *browser* | `localStorage` blocked (private browsing) | App falls back to in-memory and logs a warning |
+| Frontend build cannot resolve `@typeflow/shared` | Vercel did not install from the workspace lock file | Keep **Root Directory** as `apps/web` and **Install Command** as `npm install` |
+| API build cannot resolve `@typeflow/shared` | API workspace dependencies were not linked | Keep **Root Directory** as `apps/api` and redeploy without skipping install |
+| API route returns `404` | The catch-all function did not deploy | Confirm `apps/api/api/[...path].ts` exists in the deployed commit |
+| Browser reports a Cross-Origin Resource Sharing error | `FRONTEND_URLS` lacks the exact frontend origin | Add the origin without a trailing slash and redeploy the API |
+| Frontend sends requests to its own domain | `VITE_API_URL` is missing | Add the API origin and redeploy the frontend |
+| API results disappear | The in-memory function instance changed | Add a persistent database implementation |
+| Local API calls fail | The API process is not running | Run `npm run dev:all` from the repository root |
 
----
+## Use the complete field reference
 
-## Appendix A — Production-grade API build
+Copy these values when creating the projects.
 
-`npm install --include=dev` installs the full toolchain (TypeScript, ESLint,
-Vitest, Vite) onto the API server — slower cold starts and a larger image. To
-avoid that, make `tsx` a real dependency.
+### `typeflow-api`
 
-In `package.json`, move `"tsx": "^4.16.0"` from `devDependencies` into
-`dependencies`, then use these Render fields instead:
-
-| Field | Value |
-|---|---|
-| **Build Command** | `npm install` |
-| **Start Command** | `npx tsx server/index.ts` |
-
-A stricter option is to precompile to JavaScript and drop `tsx` at runtime, but
-that needs a dedicated server tsconfig (the current `tsconfig.json` is set up
-for a bundler with `noEmit`), so it is out of scope here.
-
----
-
-## Appendix B — Option B: build-time API URL
-
-If you would rather call Render directly instead of proxying through Vercel,
-change `src/state/results.ts`:
-
-```ts
-const API_BASE = import.meta.env["VITE_API_URL"] ?? "/api"
+```text
+Repository:          Aswin-2266/typeflow
+Production Branch:   master
+Framework Preset:    Other
+Root Directory:      apps/api
+Install Command:     npm install
+Build Command:       npm run build
+Output Directory:    (empty)
+Development Command: npm run dev
+Node.js Version:     20.x
+Environment:
+  FRONTEND_URLS=http://localhost:5173,https://typeflow-web.vercel.app
 ```
 
-Then add this on Vercel (**Settings → Environment Variables**):
+### `typeflow-web`
 
-| Key | Value | Environments |
-|---|---|---|
-| `VITE_API_URL` | `https://typeflow-api.onrender.com/api` | Production, Preview, Development |
-
-Notes:
-
-- **Rebuild required.** Vite inlines `import.meta.env` at build time. Changing
-  this variable has no effect until you redeploy.
-- **CORS applies.** Requests are now cross-origin. The server already runs
-  `app.use(cors())` with no allowlist, so it works as-is — but that permits any
-  origin. Restrict it before treating this as production-ready:
-
-  ```ts
-  app.use(cors({ origin: "https://typeflow.vercel.app" }))
-  ```
-
-- Keep the local dev fallback (`?? "/api"`) so the Vite proxy in
-  `vite.config.ts` still works when the variable is unset.
-
----
-
-## Quick reference
-
-**Render**
-
-```
-Name:            typeflow-api
-Language:        Node
-Branch:          master
-Root Directory:  (blank)
-Build Command:   npm install --include=dev
-Start Command:   npx tsx server/index.ts
-Health Check:    /health
-Env:             NODE_VERSION=20.5.1
-                 (never set PORT)
-```
-
-**Vercel**
-
-```
-Project Name:     typeflow
-Framework Preset: Vite
-Root Directory:   ./
-Build Command:    npm run build
-Output Directory: dist
-Install Command:  npm install
-Node.js Version:  20.x
-Env:              (none)
-Required file:    vercel.json  → rewrites /api/* to the Render URL
+```text
+Repository:          Aswin-2266/typeflow
+Production Branch:   master
+Framework Preset:    Vite
+Root Directory:      apps/web
+Install Command:     npm install
+Build Command:       npm run build
+Output Directory:    dist
+Development Command: npm run dev
+Node.js Version:     20.x
+Environment:
+  VITE_API_URL=https://typeflow-api.vercel.app
 ```

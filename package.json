@@ -1,48 +1,37 @@
 {
   "name": "typeflow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
-  "description": "A minimalistic, highly customizable typing test — clean-room recreation of the Monkeytype feature set.",
+  "description": "A typing test with independently deployable web and API applications.",
   "license": "MIT",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "server": "tsx watch server/index.ts",
-    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm:dev\" \"npm:server\"",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
+    "dev": "npm run dev:web",
+    "dev:web": "npm run dev --workspace @typeflow/web",
+    "dev:api": "npm run dev --workspace @typeflow/api",
+    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm:dev:web\" \"npm:dev:api\"",
+    "build": "npm run build --workspace @typeflow/shared && npm run build --workspace @typeflow/web && npm run build --workspace @typeflow/api",
+    "build:web": "npm run build --workspace @typeflow/web",
+    "build:api": "npm run build --workspace @typeflow/api",
+    "test": "npm run test --workspace @typeflow/web",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint apps packages --ext .ts",
+    "lint:fix": "eslint apps packages --ext .ts --fix",
     "format": "prettier --write \"**/*.{ts,scss,json,md}\""
   },
-  "dependencies": {
-    "@ts-rest/core": "^3.51.0",
-    "@ts-rest/express": "^3.51.0",
-    "chart.js": "^4.4.3",
-    "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "zod": "^3.23.8"
-  },
   "devDependencies": {
-    "@types/cors": "^2.8.17",
-    "@types/express": "^4.17.21",
-    "@types/node": "^20.14.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.1",
-    "jsdom": "^24.1.0",
     "prettier": "^3.3.2",
-    "sass": "^1.77.6",
-    "tsx": "^4.16.0",
-    "typescript": "^5.5.3",
-    "vite": "^5.3.3",
-    "vitest": "^1.6.0"
+    "typescript": "5.5.4"
   }
 }
