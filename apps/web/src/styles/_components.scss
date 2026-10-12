@@ -68,11 +68,10 @@
   display: grid;
   font-size: 0.8rem;
   gap: var(--space-sm);
-  grid-template-columns: max-content 1px max-content 1px minmax(12rem, 1fr);
-  justify-content: stretch;
+  grid-template-columns: 12.5rem 1px 16.25rem 1px 13.5rem;
   padding: 0.4rem 0.6rem;
   transition: opacity var(--transition-slow);
-  width: min(100%, 46rem);
+  width: 44.25rem;
 }
 
 .config-group {
@@ -82,19 +81,36 @@
   min-width: 0;
 }
 
+.config-bar > .config-group:first-child {
+  justify-content: flex-start;
+}
+
+.config-bar > .config-group[aria-label="Test mode"] {
+  justify-content: center;
+}
+
 /*
- * The final grid column is intentionally fixed. Each mode renders a different
- * number and width of options, but reserving the slot prevents the centred
- * configuration bar—and the mode selector inside it—from jumping sideways.
+ * Every mode occupies the same fixed grid track. The options are also given
+ * four equal cells, so short time values and long quote labels cannot alter
+ * the position of a divider, the mode selector, or the bar itself.
  */
 #mode-options {
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
 
-  &:empty::before {
-    color: var(--sub-color);
-    content: "—";
-    opacity: 0.55;
+  .config-btn,
+  .config-options-placeholder {
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
   }
+}
+
+.config-options-placeholder {
+  color: var(--sub-color);
+  grid-column: 1 / -1;
+  opacity: 0.55;
 }
 
 .config-divider {
@@ -229,6 +245,7 @@
 
   #mode-options {
     min-height: 2rem;
+    width: min(100%, 20rem);
   }
 }
 

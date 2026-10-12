@@ -338,9 +338,16 @@ export class App {
         )
         break
 
-      default:
-        // zen and custom have no extra options.
+      default: {
+        // Keep the four-cell options slot occupied when this mode has no
+        // options. This prevents either divider or the mode selector moving.
+        const placeholder = document.createElement("span")
+        placeholder.className = "config-options-placeholder"
+        placeholder.textContent = "—"
+        placeholder.setAttribute("aria-hidden", "true")
+        container.appendChild(placeholder)
         break
+      }
     }
   }
 
