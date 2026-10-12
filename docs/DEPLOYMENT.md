@@ -208,6 +208,8 @@ Use this table to map common failures to their fixes:
 
 | Symptom | Cause | Fix |
 |---|---|---|
+| `tsc: command not found` during a frontend build | The web workspace lacks its local TypeScript compiler dependency | Deploy commit `e99f810` or later, then redeploy with **Root Directory** `apps/web` |
+| `tsc: command not found` during an API build | The API workspace lacks its local TypeScript compiler dependency | Deploy commit `ed1cace` or later, then redeploy with **Root Directory** `apps/api` |
 | Frontend build cannot resolve `@typeflow/shared` | Vercel did not install from the workspace lock file | Keep **Root Directory** as `apps/web` and **Install Command** as `npm install` |
 | API build cannot resolve `@typeflow/shared` | API workspace dependencies were not linked | Keep **Root Directory** as `apps/api` and redeploy without skipping install |
 | API route returns `404` | The catch-all function did not deploy | Confirm `apps/api/api/[...path].ts` exists in the deployed commit |
