@@ -275,7 +275,7 @@ export class CommandLine {
     if (this.filtered.length === 0) {
       const li = document.createElement("li")
       li.className = "command-item is-empty"
-      li.textContent = "no matching commands"
+      li.textContent = "No matching commands"
       this.list.appendChild(li)
       return
     }

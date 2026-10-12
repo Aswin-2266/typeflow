@@ -17,6 +17,7 @@
     />
   </head>
   <body>
+    <a class="skip-link" href="#main-content">Skip to typing test</a>
     <div id="app">
       <!-- ---------------------------------------------------------- Header -->
       <header class="header">
@@ -34,7 +35,7 @@
         </a>
 
         <nav class="header__nav" aria-label="Primary">
-          <button class="icon-btn" data-nav="test" title="Test" aria-label="Test">
+          <button class="icon-btn" data-nav="test" title="Typing Test" aria-label="Typing Test">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           </button>
           <button class="icon-btn" data-nav="stats" title="Statistics" aria-label="Statistics">
@@ -50,7 +51,7 @@
       </header>
 
       <!-- ------------------------------------------------------------ Main -->
-      <main class="main">
+      <main class="main" id="main-content" tabindex="-1">
         <!-- ===================================================== Test page -->
         <section class="page page--test" data-page="test">
           <!-- Mode selector -->
@@ -100,6 +101,8 @@
               id="hidden-input"
               class="hidden-input"
               type="text"
+              name="typing-input"
+              inputmode="text"
               autocomplete="off"
               autocapitalize="off"
               autocorrect="off"
@@ -113,21 +116,21 @@
 
           <div class="custom-text-panel" id="custom-text-panel" hidden>
             <label for="custom-text-input">Custom text</label>
-            <textarea id="custom-text-input" rows="4"
-                      placeholder="Paste or type the text you want to practise…"></textarea>
-            <button class="btn btn--primary" data-action="apply-custom">apply</button>
+            <textarea id="custom-text-input" name="custom-text" rows="4"
+                      autocomplete="off" placeholder="Paste or type the text you want to practise…"></textarea>
+            <button class="btn btn--primary" data-action="apply-custom">Apply Text</button>
           </div>
 
           <div class="test-actions">
             <button class="btn btn--ghost" data-action="restart" title="Restart (Tab then Enter)">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              restart
+              Restart Test
             </button>
           </div>
 
           <p class="key-tip" id="key-tip">
-            <kbd>tab</kbd> + <kbd>enter</kbd> — restart test &nbsp;·&nbsp;
-            <kbd>esc</kbd> — command line
+            <kbd>Tab</kbd> + <kbd>Enter</kbd> restarts &nbsp;·&nbsp;
+            <kbd>Esc</kbd> opens commands
           </p>
         </section>
 
@@ -172,23 +175,27 @@
               </div>
             </div>
 
-            <div class="results__badge" id="result-pb" hidden>new personal best</div>
+            <div class="results__badge" id="result-pb" hidden>New Personal Best</div>
 
             <div class="results__actions">
-              <button class="btn btn--primary" data-action="restart">next test</button>
-              <button class="btn btn--ghost" data-action="repeat">repeat</button>
-              <button class="btn btn--ghost" data-nav="stats">view stats</button>
+              <button class="btn btn--primary" data-action="restart">Next Test</button>
+              <button class="btn btn--ghost" data-action="repeat">Repeat Test</button>
+              <button class="btn btn--ghost" data-nav="stats">View Statistics</button>
             </div>
           </div>
         </section>
 
         <!-- ==================================================== Stats page -->
         <section class="page page--stats" data-page="stats" hidden>
-          <h2 class="page__title">statistics</h2>
+          <div class="page-heading">
+            <p class="page-heading__kicker">Your Progress</p>
+            <h1 class="page__title">Statistics</h1>
+            <p class="page-heading__intro">See your pace, accuracy, and personal bests across every test.</p>
+          </div>
 
           <div class="stats-grid" id="stats-grid"></div>
 
-          <h3 class="section-title">personal bests</h3>
+          <h2 class="section-title">Personal Bests</h2>
           <div class="table-wrap">
             <table class="data-table" id="pb-table">
               <thead>
@@ -198,7 +205,7 @@
             </table>
           </div>
 
-          <h3 class="section-title">recent tests</h3>
+          <h2 class="section-title">Recent Tests</h2>
           <div class="table-wrap">
             <table class="data-table" id="history-table">
               <thead>
@@ -209,13 +216,17 @@
           </div>
 
           <div class="stats-actions">
-            <button class="btn btn--danger" data-action="clear-history">clear all history</button>
+            <button class="btn btn--danger" data-action="clear-history">Clear History</button>
           </div>
         </section>
 
         <!-- ================================================= Settings page -->
         <section class="page page--settings" data-page="settings" hidden>
-          <h2 class="page__title">settings</h2>
+          <div class="page-heading">
+            <p class="page-heading__kicker">Make It Yours</p>
+            <h1 class="page__title">Settings</h1>
+            <p class="page-heading__intro">Tune the test to match how you type and focus.</p>
+          </div>
           <div id="settings-content"></div>
         </section>
       </main>
@@ -239,7 +250,8 @@
           id="command-input"
           class="command-line__input"
           type="text"
-          placeholder="Type a command…"
+          name="command-search"
+          placeholder="Search commands…"
           autocomplete="off"
           spellcheck="false"
         />

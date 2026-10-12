@@ -575,6 +575,8 @@ export class App {
 
     if (page === "test") {
       this.renderer.updateCaret()
+    } else {
+      document.querySelector<HTMLElement>("#main-content")?.focus({ preventScroll: true })
     }
   }
 

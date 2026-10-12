@@ -8,12 +8,12 @@
 #app {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: var(--space-lg);
+  gap: clamp(1.5rem, 3vw, 3rem);
   margin: 0 auto;
   max-width: var(--content-width);
   min-height: 100vh;
   min-height: 100dvh;
-  padding: var(--space-lg) var(--space-md);
+  padding: clamp(1rem, 2.5vw, 2rem) clamp(1rem, 4vw, 3rem);
   width: 100%;
 }
 
@@ -24,6 +24,7 @@
   display: flex;
   justify-content: space-between;
   gap: var(--space-md);
+  min-height: 3rem;
 }
 
 .logo {
@@ -52,8 +53,13 @@
 }
 
 .header__nav {
+  align-items: center;
+  background: color-mix(in srgb, var(--sub-alt-color) 68%, transparent);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
   display: flex;
-  gap: var(--space-xs);
+  gap: 0.15rem;
+  padding: 0.2rem;
 }
 
 .icon-btn {
@@ -70,9 +76,14 @@
     width: 1.1rem;
   }
 
-  &:hover,
-  &.is-active {
+  &:hover {
+    background-color: var(--sub-alt-color);
     color: var(--text-color);
+  }
+
+  &.is-active {
+    background-color: var(--main-color);
+    color: var(--bg-color);
   }
 }
 
@@ -86,22 +97,51 @@
   width: 100%;
 }
 
+.main:focus-visible {
+  outline: none;
+}
+
 .page {
   animation: page-in 0.18s ease;
+  margin-inline: auto;
+  max-width: var(--content-narrow);
   width: 100%;
 
   &__title {
+    color: var(--text-color);
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 500;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    text-wrap: balance;
+  }
+}
+
+.page-heading {
+  margin-bottom: clamp(2rem, 5vw, 4rem);
+  max-width: 42rem;
+
+  &__kicker {
+    color: var(--main-color);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin-bottom: var(--space-sm);
+  }
+
+  &__intro {
     color: var(--sub-color);
-    font-size: 1.25rem;
-    font-weight: 400;
-    margin-bottom: var(--space-lg);
+    font-size: 1rem;
+    margin-top: var(--space-md);
+    max-width: 36rem;
+    text-wrap: pretty;
   }
 }
 
 .page--test {
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: clamp(1rem, 2.5vw, 1.75rem);
+  max-width: 1080px;
 }
 
 @keyframes page-in {
@@ -116,10 +156,11 @@
 }
 
 .section-title {
-  color: var(--sub-color);
-  font-size: 0.95rem;
-  font-weight: 400;
-  margin: var(--space-xl) 0 var(--space-md);
+  color: var(--text-color);
+  font-size: 1rem;
+  font-weight: 500;
+  margin: clamp(2.5rem, 5vw, 4.5rem) 0 var(--space-md);
+  text-wrap: balance;
 }
 
 /* ----------------------------------------------------------------- Footer */
@@ -153,6 +194,10 @@
 
   .logo__text {
     font-size: 1.3rem;
+  }
+
+  .footer__right {
+    display: none;
   }
 
   :root {

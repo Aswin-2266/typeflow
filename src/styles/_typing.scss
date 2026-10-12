@@ -14,6 +14,22 @@
   position: relative;
   user-select: none;
   width: 100%;
+
+  &::before {
+    color: var(--sub-color);
+    content: "Click here, then start typing";
+    font-size: 0.72rem;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: -1.5rem;
+    transition: opacity var(--transition-base);
+  }
+
+  &:focus-visible::before {
+    opacity: 0.75;
+  }
 }
 
 .words {
@@ -22,8 +38,9 @@
   flex-wrap: wrap;
   font-family: var(--font-mono);
   font-size: var(--font-size-test);
-  gap: 0 0.6ch;
-  line-height: 1.75;
+  gap: 0 0.7ch;
+  letter-spacing: -0.025em;
+  line-height: 1.7;
   max-height: calc(var(--font-size-test) * 1.75 * 3);
   overflow: hidden;
   transition: font-size var(--transition-base);
@@ -191,6 +208,7 @@
 .live-stat {
   color: var(--main-color);
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
   font-size: 2rem;
   font-weight: 400;
   line-height: 1;

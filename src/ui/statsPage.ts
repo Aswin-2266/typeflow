@@ -91,7 +91,7 @@ export class StatsPage {
 
       const label = document.createElement("div")
       label.className = "stat-card__label"
-      label.textContent = card.label
+      label.textContent = card.label.replace(/^./, (letter) => letter.toUpperCase())
 
       const value = document.createElement("div")
       value.className = "stat-card__value"

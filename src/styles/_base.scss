@@ -49,7 +49,13 @@
   --transition-base: 0.125s ease;
   --transition-slow: 0.25s ease;
 
-  --content-width: 1000px;
+  --content-width: 1180px;
+  --content-narrow: 1040px;
+  --hairline: color-mix(in srgb, var(--sub-color) 22%, transparent);
+}
+
+html {
+  color-scheme: dark;
 }
 
 html {
@@ -87,11 +93,13 @@ body {
 /* --------------------------------------------------------------- Elements */
 
 button {
+  -webkit-tap-highlight-color: transparent;
   background: none;
   border: none;
   color: inherit;
   cursor: pointer;
   font: inherit;
+  touch-action: manipulation;
 }
 
 a {
@@ -117,6 +125,11 @@ textarea {
     outline: 2px solid var(--main-color);
     outline-offset: 2px;
   }
+}
+
+select {
+  background-color: var(--sub-alt-color);
+  color: var(--text-color);
 }
 
 kbd {
@@ -158,6 +171,24 @@ kbd {
 }
 
 /* ---------------------------------------------------------------- Utility */
+
+.skip-link {
+  background: var(--main-color);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  color: var(--bg-color);
+  font-weight: 500;
+  left: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  position: fixed;
+  top: 0;
+  transform: translateY(-120%);
+  transition: transform var(--transition-base);
+  z-index: 500;
+
+  &:focus {
+    transform: translateY(0);
+  }
+}
 
 .visually-hidden {
   clip: rect(0 0 0 0);

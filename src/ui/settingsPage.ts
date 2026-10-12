@@ -129,7 +129,7 @@ export class SettingsPage {
 
       const heading = document.createElement("h3")
       heading.className = "section-title"
-      heading.textContent = section.title
+      heading.textContent = section.title.replace(/^./, (letter) => letter.toUpperCase())
       sectionEl.appendChild(heading)
 
       for (const setting of section.settings) {
@@ -158,7 +158,7 @@ export class SettingsPage {
 
     const titleEl = document.createElement("div")
     titleEl.className = "setting__title"
-    titleEl.textContent = title
+    titleEl.textContent = title.replace(/^./, (letter) => letter.toUpperCase())
 
     const descEl = document.createElement("div")
     descEl.className = "setting__desc"
@@ -183,8 +183,9 @@ export class SettingsPage {
     for (const option of setting.options) {
       const btn = document.createElement("button")
       btn.className = `option-btn${option.value === current ? " is-active" : ""}`
-      btn.textContent = option.label
+      btn.textContent = option.label.replace(/^./, (letter) => letter.toUpperCase())
       btn.setAttribute("aria-pressed", String(option.value === current))
+      btn.setAttribute("aria-label", `${setting.title}: ${option.label}`)
       btn.addEventListener("click", () => {
         configStore.set(setting.key, option.value)
       })
@@ -213,6 +214,8 @@ export class SettingsPage {
       const name = document.createElement("span")
       name.className = "theme-card__name"
       name.textContent = theme.label
+      card.setAttribute("aria-label", `Use ${theme.label} theme`)
+      card.setAttribute("aria-pressed", String(theme.name === config.theme))
 
       const swatches = document.createElement("span")
       swatches.className = "theme-card__swatches"
@@ -240,7 +243,7 @@ export class SettingsPage {
 
     const btn = document.createElement("button")
     btn.className = "btn btn--danger"
-    btn.textContent = "reset to defaults"
+    btn.textContent = "Reset to Defaults"
     btn.addEventListener("click", () => {
       if (confirm("Reset all settings to defaults?")) {
         configStore.reset()
