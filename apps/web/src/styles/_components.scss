@@ -65,25 +65,42 @@
   background-color: color-mix(in srgb, var(--sub-alt-color) 82%, var(--bg-color));
   border: 1px solid var(--hairline);
   border-radius: 999px;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   font-size: 0.8rem;
-  gap: var(--space-xs);
-  justify-content: center;
+  gap: var(--space-sm);
+  grid-template-columns: max-content 1px max-content 1px minmax(12rem, 1fr);
+  justify-content: stretch;
   padding: 0.4rem 0.6rem;
   transition: opacity var(--transition-slow);
+  width: min(100%, 46rem);
 }
 
 .config-group {
+  align-items: center;
   display: flex;
   gap: var(--space-xs);
+  min-width: 0;
+}
+
+/*
+ * The final grid column is intentionally fixed. Each mode renders a different
+ * number and width of options, but reserving the slot prevents the centred
+ * configuration bar—and the mode selector inside it—from jumping sideways.
+ */
+#mode-options {
+  justify-content: center;
+
+  &:empty::before {
+    color: var(--sub-color);
+    content: "—";
+    opacity: 0.55;
+  }
 }
 
 .config-divider {
   background-color: var(--bg-color);
   height: 1rem;
-  margin: 0 var(--space-sm);
-  width: 2px;
+  width: 1px;
 }
 
 .config-btn {
@@ -107,6 +124,10 @@
   &.is-active {
     background-color: var(--main-color);
     color: var(--bg-color);
+  }
+
+  &:focus-visible {
+    outline-offset: 2px;
   }
 
   &__icon {
@@ -186,6 +207,28 @@
 
   &--hero &__value {
     font-size: 3.5rem;
+  }
+}
+
+@media (max-width: 760px) {
+  .config-bar {
+    border-radius: var(--radius-lg);
+    grid-template-columns: 1fr;
+    justify-items: center;
+    width: 100%;
+  }
+
+  .config-group {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .config-divider {
+    display: none;
+  }
+
+  #mode-options {
+    min-height: 2rem;
   }
 }
 
