@@ -39,6 +39,13 @@ coverage/
 .nyc_output/
 *.lcov
 
+# agent skills
+# Installed skill bodies are fetched content, not project source.
+# skills-lock.json IS committed: it pins exact content hashes for reproducible installs.
+.zcode/skills/
+.agents/skills/
+.claude/skills/
+
 # caches
 .cache/
 .temp/

@@ -13,7 +13,7 @@ export type {
   UserStats,
   WpmSample,
   CharStats,
-} from "@shared/contract";
+} from "@shared/contract"
 
 /* -------------------------------------------------------------------------- */
 /* Character-level model                                                       */

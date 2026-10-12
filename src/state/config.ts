@@ -7,9 +7,9 @@
  * invalid state.
  */
 
-import type { Config } from "@/types";
+import type { Config } from "@/types"
 
-const STORAGE_KEY = "typeflow.config";
+const STORAGE_KEY = "typeflow.config"
 
 export const defaultConfig: Config = {
   mode: "time",
@@ -41,7 +41,7 @@ export const defaultConfig: Config = {
   soundVolume: 0.3,
 
   customText: "",
-};
+}
 
 /** Runtime validators, one per key. Anything failing is reset to default. */
 const validators: { [K in keyof Config]: (v: unknown) => v is Config[K] } = {
@@ -80,100 +80,100 @@ const validators: { [K in keyof Config]: (v: unknown) => v is Config[K] } = {
   soundVolume: (v): v is number => typeof v === "number" && v >= 0 && v <= 1,
 
   customText: (v): v is string => typeof v === "string",
-};
+}
 
 type ConfigListener = (config: Config, changedKey?: keyof Config) => void;
 
 class ConfigStore {
-  private config: Config = { ...defaultConfig };
-  private listeners = new Set<ConfigListener>();
+  private config: Config = { ...defaultConfig }
+  private listeners = new Set<ConfigListener>()
 
   constructor() {
-    this.load();
+    this.load()
   }
 
   get(): Readonly<Config> {
-    return this.config;
+    return this.config
   }
 
   getValue<K extends keyof Config>(key: K): Config[K] {
-    return this.config[key];
+    return this.config[key]
   }
 
   set<K extends keyof Config>(key: K, value: Config[K]): void {
-    const validate = validators[key] as (v: unknown) => v is Config[K];
+    const validate = validators[key] as (v: unknown) => v is Config[K]
     if (!validate(value)) {
-      console.warn(`[config] rejected invalid value for "${String(key)}"`, value);
-      return;
+      console.warn(`[config] rejected invalid value for "${String(key)}"`, value)
+      return
     }
-    if (this.config[key] === value) return;
+    if (this.config[key] === value) return
 
-    this.config[key] = value;
-    this.save();
-    this.notify(key);
+    this.config[key] = value
+    this.save()
+    this.notify(key)
   }
 
   /** Apply several keys at once, notifying only after all are written. */
   patch(partial: Partial<Config>): void {
-    let changed = false;
+    let changed = false
     for (const [key, value] of Object.entries(partial)) {
-      const k = key as keyof Config;
-      const validate = validators[k] as ((v: unknown) => boolean) | undefined;
-      if (!validate || !validate(value)) continue;
+      const k = key as keyof Config
+      const validate = validators[k] as ((v: unknown) => boolean) | undefined
+      if (!validate || !validate(value)) continue
       if (this.config[k] === value) continue;
-      (this.config as Record<string, unknown>)[k] = value;
-      changed = true;
+      (this.config as Record<string, unknown>)[k] = value
+      changed = true
     }
     if (changed) {
-      this.save();
-      this.notify();
+      this.save()
+      this.notify()
     }
   }
 
   reset(): void {
-    this.config = { ...defaultConfig };
-    this.save();
-    this.notify();
+    this.config = { ...defaultConfig }
+    this.save()
+    this.notify()
   }
 
   subscribe(listener: ConfigListener): () => void {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
+    this.listeners.add(listener)
+    return () => this.listeners.delete(listener)
   }
 
   private notify(changedKey?: keyof Config): void {
-    for (const listener of this.listeners) listener(this.config, changedKey);
+    for (const listener of this.listeners) listener(this.config, changedKey)
   }
 
   private load(): void {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return;
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
 
-      const parsed: unknown = JSON.parse(raw);
-      if (typeof parsed !== "object" || parsed === null) return;
+      const parsed: unknown = JSON.parse(raw)
+      if (typeof parsed !== "object" || parsed === null) return
 
       for (const [key, value] of Object.entries(parsed)) {
-        const k = key as keyof Config;
-        const validate = validators[k] as ((v: unknown) => boolean) | undefined;
+        const k = key as keyof Config
+        const validate = validators[k] as ((v: unknown) => boolean) | undefined
         // Silently drop keys we no longer recognise or that fail validation.
         if (validate?.(value)) {
-          (this.config as Record<string, unknown>)[k] = value;
+          (this.config as Record<string, unknown>)[k] = value
         }
       }
     } catch (err) {
-      console.warn("[config] failed to load, using defaults", err);
+      console.warn("[config] failed to load, using defaults", err)
     }
   }
 
   private save(): void {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.config));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.config))
     } catch (err) {
       // Quota exceeded or storage disabled — the app still works in-memory.
-      console.warn("[config] failed to persist", err);
+      console.warn("[config] failed to persist", err)
     }
   }
 }
 
-export const configStore = new ConfigStore();
+export const configStore = new ConfigStore()

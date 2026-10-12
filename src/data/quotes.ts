@@ -17,9 +17,9 @@ export type Quote = {
 };
 
 function bucket(text: string): Quote["length"] {
-  if (text.length < 100) return "short";
-  if (text.length < 300) return "medium";
-  return "long";
+  if (text.length < 100) return "short"
+  if (text.length < 300) return "medium"
+  return "long"
 }
 
 const raw: Omit<Quote, "length">[] = [
@@ -146,11 +146,11 @@ const raw: Omit<Quote, "length">[] = [
     text: "Consistency beats intensity. An hour of focused practice every day for a month will carry you further than a single ten-hour weekend, because skill is built by repetition spaced across sleep.",
     source: "Original prose",
   },
-];
+]
 
-export const quotes: Quote[] = raw.map((q) => ({ ...q, length: bucket(q.text) }));
+export const quotes: Quote[] = raw.map((q) => ({ ...q, length: bucket(q.text) }))
 
 export function quotesByLength(length: Quote["length"] | "all"): Quote[] {
-  if (length === "all") return quotes;
-  return quotes.filter((q) => q.length === length);
+  if (length === "all") return quotes
+  return quotes.filter((q) => q.length === length)
 }

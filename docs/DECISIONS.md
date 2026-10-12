@@ -184,3 +184,49 @@ works, traditional proverbs, and prose written for this project.
 copyrighted modern fiction and were replaced with original prose before
 completion. Paraphrasing a distinctive passage is not a workaround — the
 safeguard is to write original text or use verifiably public-domain sources.
+
+---
+
+## 14. Agent skills: official sources only
+
+**Decision.** Seven skills are installed, drawn only from `anthropics/skills`
+and `vercel-labs/agent-skills`. Three third-party skills that appeared in the
+same recommendation list — UI/UX Pro Max, TasteSkill, and Impeccable — were
+not installed.
+
+**Reasoning.** A skill is executable instruction content loaded into the
+agent's context with full project access. That makes provenance a security
+property, not a preference. The two chosen sources are maintained by the
+vendors behind the agent and the deployment platform; all seven skills passed
+the CLI's bundled scans (Gen, Socket, Snyk).
+
+The excluded three are unaffiliated repositories. Two carry star counts that
+are implausibly high for their age and narrow scope — verified as genuine API
+values rather than a parsing artifact, but anomalous enough to warrant review
+before granting context access. For the third, Impeccable, no authoritative
+repository could be identified at all; installing an unverified namesake is
+precisely the supply-chain mistake to avoid.
+
+**Consequence.** Smaller skill set, higher confidence. Any of the three can be
+added on request after inspecting its `SKILL.md` via `--list`.
+
+**Note on published instructions.** The commonly cited install command,
+`npx skills add anthropics/claude-code --skill frontend-design`, is wrong:
+that repo holds the CLI and contains no skills. The correct source is
+`anthropics/skills`. This was verified against the GitHub API rather than
+trusted, and is documented in `SKILLS.md`.
+
+---
+
+## 15. Local Node 22 for the skills CLI
+
+**Decision.** Node 22.21.1 was installed to `~/.local/node22` rather than
+upgrading or replacing the system Node 20.5.1.
+
+**Reasoning.** `skills@1.7.2` requires Node >= 22.20.0 and crashes on Node 20.
+The application, its build, and its tests all run correctly on Node 20, so
+changing the system runtime would introduce risk for a tooling-only need.
+
+**Consequence.** `skills` commands must be prefixed with
+`export PATH=$HOME/.local/node22/bin:$PATH`. The application toolchain is
+untouched and the whole change is reversible by deleting one directory.

@@ -21,8 +21,8 @@ import {
   Legend,
   Filler,
   type ChartDataset,
-} from "chart.js";
-import type { WpmSample } from "@/types";
+} from "chart.js"
+import type { WpmSample } from "@/types"
 
 Chart.register(
   LineController,
@@ -34,41 +34,41 @@ Chart.register(
   Tooltip,
   Legend,
   Filler
-);
+)
 
 /** Read a themed colour from the document root. */
 function cssVar(name: string): string {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
 // Chart.js types a chart by a single dataset kind. This instance mixes
 // line and scatter datasets, whose data shapes differ (numbers vs points),
 // so the instance is held with Chart.js's own permissive default generics.
-let chart: Chart | null = null;
+let chart: Chart | null = null
 
 export function renderResultsChart(
   canvas: HTMLCanvasElement,
   samples: WpmSample[]
 ): void {
-  const main = cssVar("--main-color");
-  const sub = cssVar("--sub-color");
-  const text = cssVar("--text-color");
-  const errorColor = cssVar("--colorful-error-color");
+  const main = cssVar("--main-color")
+  const sub = cssVar("--sub-color")
+  const text = cssVar("--text-color")
+  const errorColor = cssVar("--colorful-error-color")
 
   // A chart instance is bound to a canvas; destroy before re-rendering.
-  chart?.destroy();
+  chart?.destroy()
 
-  const labels = samples.map((s) => String(s.second));
+  const labels = samples.map((s) => String(s.second))
 
   // Place an error marker on the WPM line wherever new errors appeared.
-  const errorPoints: { x: number; y: number }[] = [];
-  let previousErrors = 0;
+  const errorPoints: { x: number; y: number }[] = []
+  let previousErrors = 0
   samples.forEach((s, i) => {
     if (s.errors > previousErrors) {
-      errorPoints.push({ x: i, y: s.wpm });
+      errorPoints.push({ x: i, y: s.wpm })
     }
-    previousErrors = s.errors;
-  });
+    previousErrors = s.errors
+  })
 
   // The chart mixes two line datasets with one scatter dataset, so the
   // array is typed as the union rather than inferred from the first entry.
@@ -110,7 +110,7 @@ export function renderResultsChart(
       pointBorderWidth: 2,
       order: 0,
     } as ChartDataset<"scatter", unknown>,
-  ];
+  ]
 
   chart = new Chart(canvas, {
     type: "line",
@@ -156,10 +156,10 @@ export function renderResultsChart(
         },
       },
     },
-  });
+  })
 }
 
 export function destroyChart(): void {
-  chart?.destroy();
-  chart = null;
+  chart?.destroy()
+  chart = null
 }

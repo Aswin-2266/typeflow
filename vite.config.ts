@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
-import { fileURLToPath, URL } from "node:url";
+import { defineConfig } from "vite"
+import { fileURLToPath, URL } from "node:url"
 
 export default defineConfig({
   resolve: {
@@ -11,12 +11,21 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    // The dev server is reached through a public tunnel subdomain in this
+    // environment, so Vite's host check must permit it. `true` disables the
+    // check entirely, which is appropriate for a dev-only server.
+    allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://localhost:3005",
+        target: `http://127.0.0.1:${process.env.API_PORT ?? 3005}`,
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    port: 4173,
+    host: true,
+    allowedHosts: true,
   },
   build: {
     outDir: "dist",
@@ -28,4 +37,4 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     globals: true,
   },
-} as Parameters<typeof defineConfig>[0]);
+} as Parameters<typeof defineConfig>[0])

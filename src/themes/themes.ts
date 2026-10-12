@@ -215,8 +215,8 @@ export const themes: Theme[] = [
       colorfulError: "#ff5f5f",
     },
   },
-];
+]
 
 export function getTheme(name: string): Theme {
-  return themes.find((t) => t.name === name) ?? themes[0]!;
+  return themes.find((t) => t.name === name) ?? themes[0]!
 }

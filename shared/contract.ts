@@ -11,19 +11,19 @@
  * file and no change to any client code.
  */
 
-import { initContract } from "@ts-rest/core";
-import { z } from "zod";
+import { initContract } from "@ts-rest/core"
+import { z } from "zod"
 
-const c = initContract();
+const c = initContract()
 
 /* -------------------------------------------------------------------------- */
 /* Primitives                                                                  */
 /* -------------------------------------------------------------------------- */
 
-export const TestModeSchema = z.enum(["time", "words", "quote", "zen", "custom"]);
+export const TestModeSchema = z.enum(["time", "words", "quote", "zen", "custom"])
 export type TestMode = z.infer<typeof TestModeSchema>;
 
-export const LanguageSchema = z.string().min(1).max(64);
+export const LanguageSchema = z.string().min(1).max(64)
 
 /** A single sampled point on the WPM-over-time graph (one sample per second). */
 export const WpmSampleSchema = z.object({
@@ -31,7 +31,7 @@ export const WpmSampleSchema = z.object({
   wpm: z.number().nonnegative(),
   raw: z.number().nonnegative(),
   errors: z.number().int().nonnegative(),
-});
+})
 export type WpmSample = z.infer<typeof WpmSampleSchema>;
 
 /** Final per-character tallies for a completed test. */
@@ -40,7 +40,7 @@ export const CharStatsSchema = z.object({
   incorrect: z.number().int().nonnegative(),
   extra: z.number().int().nonnegative(),
   missed: z.number().int().nonnegative(),
-});
+})
 export type CharStats = z.infer<typeof CharStatsSchema>;
 
 /* -------------------------------------------------------------------------- */
@@ -69,14 +69,14 @@ export const TestResultSchema = z.object({
   samples: z.array(WpmSampleSchema),
   /** Unix epoch milliseconds. */
   timestamp: z.number().int(),
-});
+})
 export type TestResult = z.infer<typeof TestResultSchema>;
 
 /** Payload accepted when submitting a result; server assigns id + timestamp. */
 export const TestResultInputSchema = TestResultSchema.omit({
   id: true,
   timestamp: true,
-});
+})
 export type TestResultInput = z.infer<typeof TestResultInputSchema>;
 
 /* -------------------------------------------------------------------------- */
@@ -92,7 +92,7 @@ export const PersonalBestSchema = z.object({
   accuracy: z.number().min(0).max(100),
   consistency: z.number().min(0).max(100),
   timestamp: z.number().int(),
-});
+})
 export type PersonalBest = z.infer<typeof PersonalBestSchema>;
 
 export const UserStatsSchema = z.object({
@@ -103,7 +103,7 @@ export const UserStatsSchema = z.object({
   averageWpm: z.number().nonnegative(),
   averageAccuracy: z.number().min(0).max(100),
   highestWpm: z.number().nonnegative(),
-});
+})
 export type UserStats = z.infer<typeof UserStatsSchema>;
 
 /* -------------------------------------------------------------------------- */
@@ -113,7 +113,7 @@ export type UserStats = z.infer<typeof UserStatsSchema>;
 export const ErrorSchema = z.object({
   message: z.string(),
   code: z.string().optional(),
-});
+})
 
 /* -------------------------------------------------------------------------- */
 /* Contract                                                                    */
@@ -189,6 +189,6 @@ export const contract = c.router(
     pathPrefix: "/api",
     strictStatusCodes: true,
   }
-);
+)
 
 export type Contract = typeof contract;

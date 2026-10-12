@@ -5,9 +5,9 @@
  * a one-line change here rather than new markup plus new event wiring.
  */
 
-import { configStore, defaultConfig } from "@/state/config";
-import { listThemes } from "@/themes/themeEngine";
-import type { Config } from "@/types";
+import { configStore, defaultConfig } from "@/state/config"
+import { listThemes } from "@/themes/themeEngine"
+import type { Config } from "@/types"
 
 type OptionSetting<K extends keyof Config> = {
   kind: "options";
@@ -36,13 +36,13 @@ function opts<K extends keyof Config>(
   desc: string,
   options: { value: Config[K]; label: string }[]
 ): OptionSetting<keyof Config> {
-  return { kind: "options", key, title, desc, options } as OptionSetting<keyof Config>;
+  return { kind: "options", key, title, desc, options } as OptionSetting<keyof Config>
 }
 
 const onOff = [
   { value: true, label: "on" },
   { value: false, label: "off" },
-];
+]
 
 const schema: Section[] = [
   {
@@ -109,147 +109,147 @@ const schema: Section[] = [
     title: "theme",
     settings: [{ kind: "theme", title: "theme", desc: "Colour palette for the entire interface." }],
   },
-];
+]
 
 export class SettingsPage {
   constructor(private container: HTMLElement) {
     // Re-render on any config change so the active states stay in sync.
     configStore.subscribe(() => {
-      if (!this.container.closest("[hidden]")) this.render();
-    });
+      if (!this.container.closest("[hidden]")) this.render()
+    })
   }
 
   render(): void {
-    const config = configStore.get();
-    this.container.replaceChildren();
+    const config = configStore.get()
+    this.container.replaceChildren()
 
     for (const section of schema) {
-      const sectionEl = document.createElement("section");
-      sectionEl.className = "settings-section";
+      const sectionEl = document.createElement("section")
+      sectionEl.className = "settings-section"
 
-      const heading = document.createElement("h3");
-      heading.className = "section-title";
-      heading.textContent = section.title;
-      sectionEl.appendChild(heading);
+      const heading = document.createElement("h3")
+      heading.className = "section-title"
+      heading.textContent = section.title
+      sectionEl.appendChild(heading)
 
       for (const setting of section.settings) {
         sectionEl.appendChild(
           setting.kind === "theme"
             ? this.buildThemeSetting(setting, config)
             : this.buildOptionSetting(setting, config)
-        );
+        )
       }
 
-      this.container.appendChild(sectionEl);
+      this.container.appendChild(sectionEl)
     }
 
-    this.container.appendChild(this.buildResetRow());
+    this.container.appendChild(this.buildResetRow())
   }
 
   private buildRow(title: string, desc: string): {
     row: HTMLElement;
     control: HTMLElement;
   } {
-    const row = document.createElement("div");
-    row.className = "setting";
+    const row = document.createElement("div")
+    row.className = "setting"
 
-    const info = document.createElement("div");
-    info.className = "setting__info";
+    const info = document.createElement("div")
+    info.className = "setting__info"
 
-    const titleEl = document.createElement("div");
-    titleEl.className = "setting__title";
-    titleEl.textContent = title;
+    const titleEl = document.createElement("div")
+    titleEl.className = "setting__title"
+    titleEl.textContent = title
 
-    const descEl = document.createElement("div");
-    descEl.className = "setting__desc";
-    descEl.textContent = desc;
+    const descEl = document.createElement("div")
+    descEl.className = "setting__desc"
+    descEl.textContent = desc
 
-    info.append(titleEl, descEl);
+    info.append(titleEl, descEl)
 
-    const control = document.createElement("div");
-    control.className = "setting__control";
+    const control = document.createElement("div")
+    control.className = "setting__control"
 
-    row.append(info, control);
-    return { row, control };
+    row.append(info, control)
+    return { row, control }
   }
 
   private buildOptionSetting(
     setting: OptionSetting<keyof Config>,
     config: Readonly<Config>
   ): HTMLElement {
-    const { row, control } = this.buildRow(setting.title, setting.desc);
-    const current = config[setting.key];
+    const { row, control } = this.buildRow(setting.title, setting.desc)
+    const current = config[setting.key]
 
     for (const option of setting.options) {
-      const btn = document.createElement("button");
-      btn.className = `option-btn${option.value === current ? " is-active" : ""}`;
-      btn.textContent = option.label;
-      btn.setAttribute("aria-pressed", String(option.value === current));
+      const btn = document.createElement("button")
+      btn.className = `option-btn${option.value === current ? " is-active" : ""}`
+      btn.textContent = option.label
+      btn.setAttribute("aria-pressed", String(option.value === current))
       btn.addEventListener("click", () => {
-        configStore.set(setting.key, option.value);
-      });
-      control.appendChild(btn);
+        configStore.set(setting.key, option.value)
+      })
+      control.appendChild(btn)
     }
 
-    return row;
+    return row
   }
 
   private buildThemeSetting(
     setting: ThemeSetting,
     config: Readonly<Config>
   ): HTMLElement {
-    const { row, control } = this.buildRow(setting.title, setting.desc);
+    const { row, control } = this.buildRow(setting.title, setting.desc)
 
-    const grid = document.createElement("div");
-    grid.className = "theme-grid";
+    const grid = document.createElement("div")
+    grid.className = "theme-grid"
 
     for (const theme of listThemes()) {
-      const card = document.createElement("button");
-      card.className = `theme-card${theme.name === config.theme ? " is-active" : ""}`;
+      const card = document.createElement("button")
+      card.className = `theme-card${theme.name === config.theme ? " is-active" : ""}`
       // Preview each theme in its own colours.
-      card.style.backgroundColor = theme.colors.bg;
-      card.style.color = theme.colors.text;
+      card.style.backgroundColor = theme.colors.bg
+      card.style.color = theme.colors.text
 
-      const name = document.createElement("span");
-      name.className = "theme-card__name";
-      name.textContent = theme.label;
+      const name = document.createElement("span")
+      name.className = "theme-card__name"
+      name.textContent = theme.label
 
-      const swatches = document.createElement("span");
-      swatches.className = "theme-card__swatches";
+      const swatches = document.createElement("span")
+      swatches.className = "theme-card__swatches"
       for (const colour of [theme.colors.main, theme.colors.text, theme.colors.sub]) {
-        const dot = document.createElement("span");
-        dot.className = "theme-card__swatch";
-        dot.style.backgroundColor = colour;
-        swatches.appendChild(dot);
+        const dot = document.createElement("span")
+        dot.className = "theme-card__swatch"
+        dot.style.backgroundColor = colour
+        swatches.appendChild(dot)
       }
 
-      card.append(name, swatches);
-      card.addEventListener("click", () => configStore.set("theme", theme.name));
-      grid.appendChild(card);
+      card.append(name, swatches)
+      card.addEventListener("click", () => configStore.set("theme", theme.name))
+      grid.appendChild(card)
     }
 
-    control.appendChild(grid);
-    return row;
+    control.appendChild(grid)
+    return row
   }
 
   private buildResetRow(): HTMLElement {
     const { row, control } = this.buildRow(
       "reset settings",
       "Restore every setting to its default value. Your test history is not affected."
-    );
+    )
 
-    const btn = document.createElement("button");
-    btn.className = "btn btn--danger";
-    btn.textContent = "reset to defaults";
+    const btn = document.createElement("button")
+    btn.className = "btn btn--danger"
+    btn.textContent = "reset to defaults"
     btn.addEventListener("click", () => {
       if (confirm("Reset all settings to defaults?")) {
-        configStore.reset();
+        configStore.reset()
       }
-    });
+    })
 
-    control.appendChild(btn);
-    return row;
+    control.appendChild(btn)
+    return row
   }
 }
 
-export { defaultConfig };
+export { defaultConfig }
