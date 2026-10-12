@@ -162,7 +162,7 @@ export const themes: Theme[] = [
     colors: {
       bg: "#f5f3ee",
       main: "#2f7a78",
-      sub: "#b3ada1",
+      sub: "#716d65",
       subAlt: "#e8e5dd",
       text: "#2b2a28",
       error: "#c0392b",
@@ -177,7 +177,7 @@ export const themes: Theme[] = [
     colors: {
       bg: "#fdfcfa",
       main: "#d97706",
-      sub: "#c4bcae",
+      sub: "#756f65",
       subAlt: "#f0ece4",
       text: "#33302b",
       error: "#dc2626",
