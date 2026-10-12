@@ -1,0 +1,44 @@
+{
+  "name": "typeflow",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A minimalistic, highly customizable typing test — clean-room recreation of the Monkeytype feature set.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "server": "tsx watch server/index.ts",
+    "dev:all": "concurrently -n web,api -c cyan,magenta \"npm:dev\" \"npm:server\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"**/*.{ts,scss,json,md}\""
+  },
+  "dependencies": {
+    "@ts-rest/core": "^3.51.0",
+    "@ts-rest/express": "^3.51.0",
+    "chart.js": "^4.4.3",
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.0",
+    "concurrently": "^8.2.2",
+    "jsdom": "^24.1.0",
+    "prettier": "^3.3.2",
+    "sass": "^1.77.6",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.3",
+    "vitest": "^1.6.0"
+  }
+}

@@ -1,0 +1,174 @@
+/**
+ * Reset, design tokens, and base element styles.
+ *
+ * All colour values are CSS custom properties written at runtime by the
+ * theme engine. Nothing in this file hardcodes a palette colour, which is
+ * what allows instant theme switching with no stylesheet reload.
+ */
+
+/* ------------------------------------------------------------------ Reset */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Fallback palette — replaced on first paint by the theme engine. */
+  --bg-color: #1c1c1e;
+  --main-color: #f5c518;
+  --caret-color: #f5c518;
+  --sub-color: #5c5c61;
+  --sub-alt-color: #252528;
+  --text-color: #e4e4e7;
+  --error-color: #e5484d;
+  --error-extra-color: #8c2f33;
+  --colorful-error-color: #e5484d;
+
+  /* Typography */
+  --font-mono: "Roboto Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-ui: "Lexend Deca", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-size-test: 1.5rem;
+
+  /* Spacing scale */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  --transition-fast: 0.1s ease;
+  --transition-base: 0.125s ease;
+  --transition-slow: 0.25s ease;
+
+  --content-width: 1000px;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  line-height: 1.5;
+  min-height: 100vh;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background-color var(--transition-slow),
+    color var(--transition-slow);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Respect users who have asked for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* --------------------------------------------------------------- Elements */
+
+button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+textarea {
+  background-color: var(--sub-alt-color);
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--text-color);
+  font-family: var(--font-ui);
+  padding: var(--space-sm) var(--space-md);
+  width: 100%;
+
+  &::placeholder {
+    color: var(--sub-color);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--main-color);
+    outline-offset: 2px;
+  }
+}
+
+kbd {
+  background-color: var(--sub-alt-color);
+  border-radius: var(--radius-sm);
+  color: var(--sub-color);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  padding: 0.15em 0.45em;
+}
+
+:focus-visible {
+  outline: 2px solid var(--main-color);
+  outline-offset: 2px;
+}
+
+/* Keep scrollbars on-theme rather than reverting to browser defaults. */
+* {
+  scrollbar-color: var(--sub-color) transparent;
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--sub-color);
+  border-radius: 4px;
+
+  &:hover {
+    background-color: var(--text-color);
+  }
+}
+
+/* ---------------------------------------------------------------- Utility */
+
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+[hidden] {
+  display: none !important;
+}

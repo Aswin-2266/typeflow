@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1c1c1e" />
+    <meta
+      name="description"
+      content="A minimalistic, highly customizable typing test. Measure your words per minute, accuracy, and consistency across multiple modes."
+    />
+    <title>typeflow — typing test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@300;400;500;700&family=Lexend+Deca:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <!-- ---------------------------------------------------------- Header -->
+      <header class="header">
+        <a class="logo" href="#/" data-nav="test" aria-label="typeflow home">
+          <svg class="logo__mark" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M3 7h18M7 7v10M12 7v10M17 7v10"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+              stroke-linecap="round"
+            />
+          </svg>
+          <span class="logo__text">typeflow</span>
+        </a>
+
+        <nav class="header__nav" aria-label="Primary">
+          <button class="icon-btn" data-nav="test" title="Test" aria-label="Test">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-btn" data-nav="stats" title="Statistics" aria-label="Statistics">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-btn" data-nav="settings" title="Settings" aria-label="Settings">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+          <button class="icon-btn" data-action="command-line" title="Command line (Ctrl+Shift+P)" aria-label="Command line">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7l5 5-5 5M12 17h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </nav>
+      </header>
+
+      <!-- ------------------------------------------------------------ Main -->
+      <main class="main">
+        <!-- ===================================================== Test page -->
+        <section class="page page--test" data-page="test">
+          <!-- Mode selector -->
+          <div class="config-bar" id="config-bar">
+            <div class="config-group" role="group" aria-label="Modifiers">
+              <button class="config-btn" data-config="punctuation" aria-pressed="false">
+                <span class="config-btn__icon">@</span> punctuation
+              </button>
+              <button class="config-btn" data-config="numbers" aria-pressed="false">
+                <span class="config-btn__icon">#</span> numbers
+              </button>
+            </div>
+
+            <div class="config-divider" aria-hidden="true"></div>
+
+            <div class="config-group" role="group" aria-label="Test mode">
+              <button class="config-btn" data-mode="time">time</button>
+              <button class="config-btn" data-mode="words">words</button>
+              <button class="config-btn" data-mode="quote">quote</button>
+              <button class="config-btn" data-mode="zen">zen</button>
+              <button class="config-btn" data-mode="custom">custom</button>
+            </div>
+
+            <div class="config-divider" aria-hidden="true"></div>
+
+            <div class="config-group" id="mode-options" role="group" aria-label="Mode options"></div>
+          </div>
+
+          <!-- Live metrics -->
+          <div class="test-meta">
+            <div class="live-stat" id="live-timer" aria-live="off"></div>
+            <div class="live-stat live-stat--secondary" id="live-wpm" aria-live="off"></div>
+            <div class="live-stat live-stat--secondary" id="live-acc" aria-live="off"></div>
+          </div>
+
+          <div class="progress-bar" id="progress-bar" hidden>
+            <div class="progress-bar__fill" id="progress-fill"></div>
+          </div>
+
+          <!-- The typing surface -->
+          <div class="typing-area" id="typing-area" tabindex="0" role="textbox"
+               aria-label="Typing test input area" aria-multiline="true">
+            <div class="caret" id="caret" aria-hidden="true"></div>
+            <div class="words" id="words"></div>
+            <!-- Captures input on touch devices, which need a real field. -->
+            <input
+              id="hidden-input"
+              class="hidden-input"
+              type="text"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              tabindex="-1"
+              aria-hidden="true"
+            />
+          </div>
+
+          <div class="quote-source" id="quote-source" hidden></div>
+
+          <div class="custom-text-panel" id="custom-text-panel" hidden>
+            <label for="custom-text-input">Custom text</label>
+            <textarea id="custom-text-input" rows="4"
+                      placeholder="Paste or type the text you want to practise…"></textarea>
+            <button class="btn btn--primary" data-action="apply-custom">apply</button>
+          </div>
+
+          <div class="test-actions">
+            <button class="btn btn--ghost" data-action="restart" title="Restart (Tab then Enter)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              restart
+            </button>
+          </div>
+
+          <p class="key-tip" id="key-tip">
+            <kbd>tab</kbd> + <kbd>enter</kbd> — restart test &nbsp;·&nbsp;
+            <kbd>esc</kbd> — command line
+          </p>
+        </section>
+
+        <!-- ================================================== Results page -->
+        <section class="page page--results" data-page="results" hidden>
+          <div class="results">
+            <div class="results__primary">
+              <div class="result-stat result-stat--hero">
+                <div class="result-stat__label">wpm</div>
+                <div class="result-stat__value" id="result-wpm">0</div>
+              </div>
+              <div class="result-stat result-stat--hero">
+                <div class="result-stat__label">acc</div>
+                <div class="result-stat__value" id="result-acc">0%</div>
+              </div>
+            </div>
+
+            <div class="results__chart">
+              <canvas id="results-chart" aria-label="Words per minute over time"></canvas>
+            </div>
+
+            <div class="results__secondary">
+              <div class="result-stat">
+                <div class="result-stat__label">test type</div>
+                <div class="result-stat__value result-stat__value--sm" id="result-type">—</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat__label">raw</div>
+                <div class="result-stat__value result-stat__value--sm" id="result-raw">0</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat__label">characters</div>
+                <div class="result-stat__value result-stat__value--sm" id="result-chars">0/0/0/0</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat__label">consistency</div>
+                <div class="result-stat__value result-stat__value--sm" id="result-consistency">0%</div>
+              </div>
+              <div class="result-stat">
+                <div class="result-stat__label">time</div>
+                <div class="result-stat__value result-stat__value--sm" id="result-time">0s</div>
+              </div>
+            </div>
+
+            <div class="results__badge" id="result-pb" hidden>new personal best</div>
+
+            <div class="results__actions">
+              <button class="btn btn--primary" data-action="restart">next test</button>
+              <button class="btn btn--ghost" data-action="repeat">repeat</button>
+              <button class="btn btn--ghost" data-nav="stats">view stats</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================================================== Stats page -->
+        <section class="page page--stats" data-page="stats" hidden>
+          <h2 class="page__title">statistics</h2>
+
+          <div class="stats-grid" id="stats-grid"></div>
+
+          <h3 class="section-title">personal bests</h3>
+          <div class="table-wrap">
+            <table class="data-table" id="pb-table">
+              <thead>
+                <tr><th>mode</th><th>wpm</th><th>accuracy</th><th>consistency</th><th>date</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <h3 class="section-title">recent tests</h3>
+          <div class="table-wrap">
+            <table class="data-table" id="history-table">
+              <thead>
+                <tr><th>wpm</th><th>raw</th><th>accuracy</th><th>consistency</th><th>mode</th><th>date</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div class="stats-actions">
+            <button class="btn btn--danger" data-action="clear-history">clear all history</button>
+          </div>
+        </section>
+
+        <!-- ================================================= Settings page -->
+        <section class="page page--settings" data-page="settings" hidden>
+          <h2 class="page__title">settings</h2>
+          <div id="settings-content"></div>
+        </section>
+      </main>
+
+      <!-- ---------------------------------------------------------- Footer -->
+      <footer class="footer">
+        <div class="footer__left">
+          <span class="footer__item" id="footer-theme"></span>
+        </div>
+        <div class="footer__right">
+          <span class="footer__item">typeflow</span>
+        </div>
+      </footer>
+    </div>
+
+    <!-- ------------------------------------------------------ Command line -->
+    <div class="command-line" id="command-line" hidden>
+      <div class="command-line__backdrop" data-action="close-command-line"></div>
+      <div class="command-line__panel" role="dialog" aria-modal="true" aria-label="Command line">
+        <input
+          id="command-input"
+          class="command-line__input"
+          type="text"
+          placeholder="Type a command…"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <ul class="command-line__list" id="command-list" role="listbox"></ul>
+      </div>
+    </div>
+
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

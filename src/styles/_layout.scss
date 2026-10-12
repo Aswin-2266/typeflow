@@ -1,0 +1,161 @@
+/**
+ * Page shell: header, main grid, footer.
+ *
+ * The app occupies a fixed-height viewport grid so the typing area stays
+ * optically centred regardless of how much chrome is visible.
+ */
+
+#app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: var(--space-lg);
+  margin: 0 auto;
+  max-width: var(--content-width);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: var(--space-lg) var(--space-md);
+  width: 100%;
+}
+
+/* ----------------------------------------------------------------- Header */
+
+.header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+}
+
+.logo {
+  align-items: center;
+  color: var(--main-color);
+  display: flex;
+  gap: var(--space-sm);
+  transition: color var(--transition-base), opacity var(--transition-base);
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &__mark {
+    height: 1.75rem;
+    width: 1.75rem;
+  }
+
+  &__text {
+    color: var(--text-color);
+    font-size: 1.6rem;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+}
+
+.header__nav {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.icon-btn {
+  align-items: center;
+  border-radius: var(--radius-md);
+  color: var(--sub-color);
+  display: flex;
+  justify-content: center;
+  padding: var(--space-sm);
+  transition: color var(--transition-base), background-color var(--transition-base);
+
+  svg {
+    height: 1.1rem;
+    width: 1.1rem;
+  }
+
+  &:hover,
+  &.is-active {
+    color: var(--text-color);
+  }
+}
+
+/* ------------------------------------------------------------------- Main */
+
+.main {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.page {
+  animation: page-in 0.18s ease;
+  width: 100%;
+
+  &__title {
+    color: var(--sub-color);
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin-bottom: var(--space-lg);
+  }
+}
+
+.page--test {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-title {
+  color: var(--sub-color);
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin: var(--space-xl) 0 var(--space-md);
+}
+
+/* ----------------------------------------------------------------- Footer */
+
+.footer {
+  align-items: center;
+  color: var(--sub-color);
+  display: flex;
+  font-size: 0.8rem;
+  justify-content: space-between;
+
+  &__item {
+    transition: color var(--transition-base);
+  }
+
+  &__left,
+  &__right {
+    align-items: center;
+    display: flex;
+    gap: var(--space-md);
+  }
+}
+
+/* ------------------------------------------------------------ Breakpoints */
+
+@media (max-width: 768px) {
+  #app {
+    gap: var(--space-md);
+    padding: var(--space-md) var(--space-sm);
+  }
+
+  .logo__text {
+    font-size: 1.3rem;
+  }
+
+  :root {
+    --font-size-test: 1.25rem;
+  }
+}

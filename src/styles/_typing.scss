@@ -1,0 +1,259 @@
+/**
+ * The typing surface.
+ *
+ * Characters are individually wrapped in spans so each can carry its own
+ * correctness state. The caret is absolutely positioned and translated to
+ * the active character's box, which is what makes smooth motion possible
+ * without reflowing the text on every keystroke.
+ */
+
+.typing-area {
+  cursor: text;
+  min-height: 9rem;
+  outline: none;
+  position: relative;
+  user-select: none;
+  width: 100%;
+}
+
+.words {
+  color: var(--sub-color);
+  display: flex;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-test);
+  gap: 0 0.6ch;
+  line-height: 1.75;
+  max-height: calc(var(--font-size-test) * 1.75 * 3);
+  overflow: hidden;
+  transition: font-size var(--transition-base);
+}
+
+.word {
+  border-bottom: 2px solid transparent;
+  display: inline-flex;
+  margin-bottom: 0.1em;
+  transition: border-color var(--transition-fast);
+
+  /* A word left with errors is underlined once the user moves past it. */
+  &.has-error {
+    border-bottom-color: var(--colorful-error-color);
+  }
+}
+
+.char {
+  display: inline-block;
+  transition: color var(--transition-fast);
+
+  &.correct {
+    color: var(--text-color);
+  }
+
+  &.incorrect {
+    color: var(--error-color);
+  }
+
+  &.extra {
+    color: var(--error-extra-color);
+    opacity: 0.8;
+  }
+
+  &.missed {
+    color: var(--error-color);
+    opacity: 0.55;
+    text-decoration: underline;
+  }
+
+  &.pending {
+    color: var(--sub-color);
+  }
+}
+
+/* Blind mode suppresses all correctness feedback while typing. */
+.typing-area.blind {
+  .char.correct,
+  .char.incorrect,
+  .char.extra,
+  .char.missed {
+    color: var(--text-color);
+    opacity: 1;
+    text-decoration: none;
+  }
+
+  .word.has-error {
+    border-bottom-color: transparent;
+  }
+}
+
+/* Focus mode dims the chrome so only the text remains prominent. */
+.focus-mode {
+  .header,
+  .footer,
+  .config-bar,
+  .key-tip,
+  .test-actions {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--transition-slow);
+  }
+}
+
+/* ------------------------------------------------------------------ Caret */
+
+.caret {
+  background-color: var(--caret-color);
+  border-radius: 1px;
+  height: calc(var(--font-size-test) * 1.2);
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 2px;
+  will-change: transform;
+  animation: caret-blink 1s infinite;
+}
+
+/* Smooth caret animates between character boxes. */
+.caret.smooth {
+  transition: transform 0.1s linear, height var(--transition-fast),
+    width var(--transition-fast);
+}
+
+/* While actively typing the caret holds solid rather than blinking. */
+.caret.typing {
+  animation: none;
+}
+
+.caret.hidden {
+  display: none;
+}
+
+@keyframes caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  50%,
+  95% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Caret style variants */
+.caret.style-block {
+  mix-blend-mode: difference;
+  width: 1ch;
+}
+
+.caret.style-outline {
+  background-color: transparent;
+  border: 2px solid var(--caret-color);
+  width: 1ch;
+}
+
+.caret.style-underline {
+  height: 3px;
+  top: calc(var(--font-size-test) * 1.2);
+  width: 1ch;
+}
+
+/* Hidden input captures keystrokes on touch devices. */
+.hidden-input {
+  height: 1px;
+  left: -9999px;
+  opacity: 0;
+  position: absolute;
+  top: 0;
+  width: 1px;
+}
+
+/* ----------------------------------------------------------- Quote source */
+
+.quote-source {
+  color: var(--sub-color);
+  font-size: 0.85rem;
+  font-style: italic;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------ Live timers */
+
+.test-meta {
+  align-items: baseline;
+  display: flex;
+  gap: var(--space-lg);
+  min-height: 2rem;
+}
+
+.live-stat {
+  color: var(--main-color);
+  font-family: var(--font-mono);
+  font-size: 2rem;
+  font-weight: 400;
+  line-height: 1;
+  transition: opacity var(--transition-base);
+
+  &--secondary {
+    font-size: 1.25rem;
+    opacity: 0.85;
+  }
+
+  &:empty {
+    display: none;
+  }
+}
+
+.progress-bar {
+  background-color: var(--sub-alt-color);
+  border-radius: 2px;
+  height: 4px;
+  overflow: hidden;
+  width: 100%;
+
+  &__fill {
+    background-color: var(--main-color);
+    height: 100%;
+    transition: width 0.1s linear;
+    width: 0;
+  }
+}
+
+/* ---------------------------------------------------------- Test actions */
+
+.test-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.key-tip {
+  color: var(--sub-color);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.custom-text-panel {
+  background-color: var(--sub-alt-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+
+  label {
+    color: var(--sub-color);
+    font-size: 0.85rem;
+  }
+
+  textarea {
+    background-color: var(--bg-color);
+    font-family: var(--font-mono);
+    resize: vertical;
+  }
+
+  .btn {
+    align-self: flex-start;
+  }
+}
