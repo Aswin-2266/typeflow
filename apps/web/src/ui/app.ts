@@ -20,6 +20,7 @@ import { StatsPage, describeMode } from "./statsPage"
 import { renderResultsChart, destroyChart } from "./chart"
 import { soundManager } from "@/utils/sound"
 import { initToasts, toast } from "./toast"
+import { isEditableTarget, isRestartShortcut } from "./keyboard"
 import type { Config, EngineEvent, TestResult } from "@/types"
 
 type Page = "test" | "results" | "stats" | "settings";
@@ -41,8 +42,6 @@ export class App {
   private statsPage: StatsPage
 
   private currentPage: Page = "test"
-  /** Set when Tab is pressed, so Tab+Enter can restart. */
-  private tabPressed = false
   private lastResult: TestResult | null = null
 
   private el: {
@@ -285,7 +284,9 @@ export class App {
     const config = configStore.get()
 
     for (const btn of document.querySelectorAll<HTMLElement>("[data-mode]")) {
-      btn.classList.toggle("is-active", btn.dataset["mode"] === config.mode)
+      const active = btn.dataset["mode"] === config.mode
+      btn.classList.toggle("is-active", active)
+      btn.setAttribute("aria-pressed", String(active))
     }
 
     for (const btn of document.querySelectorAll<HTMLElement>("[data-config]")) {
@@ -310,8 +311,10 @@ export class App {
     ): void => {
       for (const value of values) {
         const btn = document.createElement("button")
-        btn.className = `config-btn${value === current ? " is-active" : ""}`
+        const active = value === current
+        btn.className = `config-btn${active ? " is-active" : ""}`
         btn.textContent = String(value)
+        btn.setAttribute("aria-pressed", String(active))
         btn.addEventListener("click", () => onSelect(value))
         container.appendChild(btn)
       }
@@ -441,24 +444,20 @@ export class App {
       return
     }
 
-    // Tab arms a restart; Enter confirms it.
-    if (e.key === "Tab") {
-      e.preventDefault()
-      this.tabPressed = true
-      return
-    }
-
-    if (this.tabPressed) {
-      this.tabPressed = false
-      if (e.key === "Enter") {
-        e.preventDefault()
-        this.restart()
-        return
-      }
-    }
+    // Keep native form editing and keyboard navigation intact. The typing
+    // engine only owns unmodified keystrokes outside editable controls.
+    if (isEditableTarget(e.target)) return
 
     // Typing is only accepted on the test page.
     if (this.currentPage !== "test") return
+
+    // A conventional shortcut replaces the old Tab+Enter chord, which
+    // prevented keyboard users from moving focus through the interface.
+    if (isRestartShortcut(e)) {
+      e.preventDefault()
+      this.restart()
+      return
+    }
 
     // Never swallow browser/OS shortcuts.
     if (e.metaKey || e.altKey) return

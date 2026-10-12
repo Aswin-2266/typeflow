@@ -328,6 +328,21 @@ describe("completion", () => {
     expect(result.accuracy).toBeLessThanOrEqual(100)
   })
 
+  it("keeps zen and custom result metadata distinct", () => {
+    for (const mode of ["zen", "custom"] as const) {
+      const engine = makeEngine({ mode })
+      seedWords(engine, ["ab"])
+      const finish = vi.fn()
+      engine.on((event) => {
+        if (event.type === "finish") finish(event.result)
+      })
+
+      engine.finish()
+
+      expect(finish).toHaveBeenCalledWith(expect.objectContaining({ mode, mode2: mode }))
+    }
+  })
+
   it("does not finish early in time mode", () => {
     const engine = makeEngine({ mode: "time", time: 30 })
     seedWords(engine, ["ab", "cd"])

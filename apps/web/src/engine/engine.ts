@@ -457,7 +457,9 @@ export class TypingEngine {
         return String(this.config.words)
       case "quote":
         return this.config.quoteLength
-      default:
+      case "zen":
+        return "zen"
+      case "custom":
         return "custom"
     }
   }

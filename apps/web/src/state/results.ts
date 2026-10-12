@@ -7,6 +7,7 @@
  */
 
 import type { PersonalBest, TestResult, TestResultInput, UserStats } from "@/types"
+import { parseStoredResults } from "./resultValidation"
 
 const STORAGE_KEY = "typeflow.results"
 const MAX_STORED = 1000
@@ -136,11 +137,15 @@ class ResultStore {
 
   private async syncToServer(input: TestResultInput): Promise<void> {
     try {
-      await fetch(`${API_BASE}/results`, {
+      const response = await fetch(`${API_BASE}/results`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(input),
       })
+
+      if (!response.ok) {
+        console.warn(`[results] server sync failed with status ${response.status}`)
+      }
     } catch {
       // The server is optional. Local storage remains the source of truth.
     }
@@ -151,15 +156,7 @@ class ResultStore {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (!raw) return
       const parsed: unknown = JSON.parse(raw)
-      if (Array.isArray(parsed)) {
-        this.results = parsed.filter(
-          (r): r is TestResult =>
-            typeof r === "object" &&
-            r !== null &&
-            typeof (r as TestResult).wpm === "number" &&
-            typeof (r as TestResult).id === "string"
-        )
-      }
+      this.results = parseStoredResults(parsed)
     } catch (err) {
       console.warn("[results] failed to load history", err)
     }
