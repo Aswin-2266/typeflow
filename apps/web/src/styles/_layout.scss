@@ -1,8 +1,8 @@
 /**
  * Page shell: header, main grid, footer.
  *
- * The app occupies a fixed-height viewport grid so the typing area stays
- * optically centred regardless of how much chrome is visible.
+ * The app occupies a fixed-height viewport grid. The test controls stay
+ * anchored while mode-specific content expands below them.
  */
 
 #app {
@@ -138,10 +138,12 @@
 }
 
 .page--test {
+  align-self: start;
   display: flex;
   flex-direction: column;
   gap: clamp(1rem, 2.5vw, 1.75rem);
   max-width: 1080px;
+  padding-top: clamp(1rem, 8vh, 5rem);
 }
 
 @keyframes page-in {
