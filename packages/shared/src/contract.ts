@@ -96,6 +96,10 @@ export const PersonalBestSchema = z.object({
 export type PersonalBest = z.infer<typeof PersonalBestSchema>;
 
 export const UserStatsSchema = z.object({
+  /**
+   * @deprecated Starts are not tracked; this always equals `testsCompleted`.
+   * Kept for backward compatibility with existing clients.
+   */
   testsStarted: z.number().int().nonnegative(),
   testsCompleted: z.number().int().nonnegative(),
   /** Total seconds spent typing across all completed tests. */
@@ -163,8 +167,9 @@ export const contract = c.router(
       body: z.object({}).optional(),
       responses: {
         200: z.object({ deleted: z.number().int().nonnegative() }),
+        403: ErrorSchema,
       },
-      summary: "Clear all stored results.",
+      summary: "Clear all stored results. Requires the admin token in production.",
     },
 
     personalBests: {

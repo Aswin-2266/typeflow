@@ -7,11 +7,37 @@
  * side of the wire.
  */
 
+import { timingSafeEqual } from "node:crypto"
+import type { Request } from "express"
 import { initServer } from "@ts-rest/express"
 import { contract } from "@typeflow/shared/contract"
+import { checkResultPlausibility } from "@typeflow/shared/plausibility"
 import type { ResultStore } from "../store/memoryStore"
 
 const s = initServer()
+
+/** Header carrying the admin token for destructive operations. */
+export const ADMIN_TOKEN_HEADER = "x-admin-token"
+
+function safeEqual(a: string, b: string): boolean {
+  const left = Buffer.from(a)
+  const right = Buffer.from(b)
+  return left.length === right.length && timingSafeEqual(left, right)
+}
+
+/**
+ * Destructive operations are allowed when:
+ * - `ADMIN_TOKEN` is set and the request carries the matching header, or
+ * - `ADMIN_TOKEN` is unset and the server is not running in production,
+ *   so local development keeps working without configuration.
+ */
+export function isAdminRequest(req: Request): boolean {
+  const configured = process.env["ADMIN_TOKEN"]?.trim()
+  if (!configured) return process.env["NODE_ENV"] !== "production"
+
+  const provided = req.header(ADMIN_TOKEN_HEADER)
+  return typeof provided === "string" && safeEqual(provided, configured)
+}
 
 export function createRouter(store: ResultStore) {
   const startedAt = Date.now()
@@ -31,6 +57,14 @@ export function createRouter(store: ResultStore) {
     },
 
     createResult: async ({ body }) => {
+      const implausible = checkResultPlausibility(body)
+      if (implausible) {
+        return {
+          status: 400 as const,
+          body: { message: `Implausible result: ${implausible}`, code: "IMPLAUSIBLE_RESULT" },
+        }
+      }
+
       try {
         const result = await store.create(body)
         return { status: 201 as const, body: result }
@@ -45,7 +79,14 @@ export function createRouter(store: ResultStore) {
       }
     },
 
-    deleteResults: async () => {
+    deleteResults: async ({ req }) => {
+      if (!isAdminRequest(req)) {
+        return {
+          status: 403 as const,
+          body: { message: "Deleting results requires an admin token", code: "FORBIDDEN" },
+        }
+      }
+
       const deleted = await store.clear()
       return { status: 200 as const, body: { deleted } }
     },

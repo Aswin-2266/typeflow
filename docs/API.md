@@ -97,9 +97,14 @@ them is not required and they are ignored.
 
 **Response `201`** — the created result, including `id` and `timestamp`.
 
-**Response `400`**
+**Response `400`**: the payload has the wrong shape.
 ```json
 { "message": "Request failed validation", "code": "VALIDATION_ERROR", "issues": [] }
+```
+
+**Response `400`**: the payload is well-formed but its numbers are inconsistent, for example WPM above 350, raw WPM or accuracy that don't match `chars` and `duration`, or more samples than elapsed seconds. The checks live in `packages/shared/src/plausibility.ts`.
+```json
+{ "message": "Implausible result: raw wpm does not match character counts", "code": "IMPLAUSIBLE_RESULT" }
 ```
 
 ```bash
@@ -118,12 +123,36 @@ curl -X POST http://localhost:3005/api/results \
 
 ## `DELETE /api/results`
 
-Clear all stored results.
+Clear all stored results. This is an admin operation.
+
+- When `ADMIN_TOKEN` is set, the request must send it in the `X-Admin-Token` header.
+- When `ADMIN_TOKEN` is unset, deletes are allowed outside production and refused when `NODE_ENV=production`.
+
+```bash
+curl -X DELETE http://localhost:3005/api/results -H "X-Admin-Token: $ADMIN_TOKEN"
+```
 
 **Response `200`**
 ```json
 { "deleted": 12 }
 ```
+
+**Response `403`**
+```json
+{ "message": "Deleting results requires an admin token", "code": "FORBIDDEN" }
+```
+
+---
+
+## Limits
+
+| Scope | Limit |
+|---|---|
+| All `/api/*` requests | 300 per minute per IP |
+| `POST` and `DELETE /api/results` | 30 per minute per IP |
+| Request body | 1 MB |
+
+Exceeding a rate limit returns `429` with `{ "message": "Too many requests, slow down", "code": "RATE_LIMITED" }` and standard `RateLimit` headers.
 
 ---
 
@@ -161,6 +190,8 @@ Lifetime aggregates.
   "highestWpm": 82.4
 }
 ```
+
+`testsStarted` is deprecated. Starts aren't tracked, so it always equals `testsCompleted`. It's kept so existing clients don't break.
 
 ---
 

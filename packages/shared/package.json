@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    "./contract": "./src/contract.ts"
+    "./contract": "./src/contract.ts",
+    "./plausibility": "./src/plausibility.ts"
   },
   "scripts": {
     "build": "tsc --noEmit",
